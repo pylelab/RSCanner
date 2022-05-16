@@ -1,0 +1,347 @@
+---
+title: "RSCanner Script"
+author: "Gandhar Mahadeshwar"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+RSCanner script [property of Pyle Lab, Yale University]
+Written by Gandhar Mahadeshwar, Rafael Tavares
+
+```{r}
+library(readxl)
+library(MASS)
+library(tidyverse)
+library(dplyr)
+library(grid)
+library(boxplotdbl)
+library(xlsx)
+library(seqinr)
+```
+
+USER INPUTS: HCV TEST-- uncomment this when you want to see HCV results (from Tavares, et al. )
+```{r}
+# bpcinput <- (read_excel("structured-ness_SF_default.xlsx", sheet = 2, col_names = FALSE))
+# shannoninput <- (read_excel("structured_ness_shannon_results.xlsx", sheet = 2, col_names = TRUE))
+# 
+# #USER: Input dot-bracket file
+# dotbracket_vector <- bpcinput$'...3'
+# 
+# #USER (OPTIONAL): Input list of Shannon values
+# shannon <- shannoninput$Shannon
+# 
+# #USER: Input window size
+# window_size <- 50
+```
+
+
+
+USER INPUTS: JFH1 HCV genomic RNA TEST-- uncomment this when you want to see JFH1 HCV genomic RNA results
+```{r}
+bpcinput <- seqinr::read.fasta("HCV_JFH1_2a.txt", set.attributes = FALSE, whole.header = FALSE)
+shannoninput <- (read_excel("Dataset_S1_HCV_genome_SHAPE_reactivities.xlsx", sheet = 3, col_names = TRUE))
+
+#USER: Input dot-bracket file
+dotbracket_vector <- bpcinput$ENERGY[((length(bpcinput$ENERGY)/2)+1):length(bpcinput$ENERGY)]
+
+#USER (OPTIONAL): Input list of Shannon values
+shannon <- shannoninput$Shannon
+
+#USER: Input window size
+window_size <- 50
+```
+
+```{r}
+ctfileinput <- read.table("HCV_JFH1_2a_genome_model.ct")
+ctfileinput
+```
+
+```{r}
+dotbracket_nums <- ctfileinput[[4]]
+#dotbracket_nums[which(dotbracket_nums == 0)] <- "."
+
+# dotbracket_real <- numeric(length(dotbracket_nums))
+# 
+# 
+# for (i in 1:length(dotbracket_real)) {
+#   while (dotbracket_nums[i] != 0) {
+#     dotbracket[i] <- brack_current
+#   }
+# }
+
+indexnotzero <- which(dotbracket_nums != 0)
+
+for (i in 2:length(indexnotzero)) {
+  if(indexnotzero[i] - indexnotzero[i-1] != 1) {
+    dotbracket_nums[indexnotzero[i]] <- "*"
+  }
+  dotbracket_nums[indexnotzero[1]] <- "*"
+}
+
+wichaster <- which(dotbracket_nums == "*")
+
+for (j in 1:length(wichaster)) {
+  if (j %% 2 == 0) {
+    dotbracket_nums[wichaster[j]] <- ")"
+  } else {
+    dotbracket_nums[wichaster[j]] <- "("
+  }
+}
+
+dotbracket_real <- dotbracket_nums
+
+`%!in%` <- Negate(`%in%`)
+
+for (k in 1:length(dotbracket_nums)) {
+  ind <- wichaster[which(wichaster < k)[length(which(wichaster < k))]]
+  if (dotbracket_real[k] %!in% c("0", "(", ")")) {
+    dotbracket_real[k] <- dotbracket_nums[ind]
+  } else {
+    dotbracket_real[k] <- dotbracket_nums[k]
+  }
+}
+
+dotbracket_real[which(dotbracket_real == "0")] <- "."
+
+## USE ^^^ dotbracket_real for "dotbracket_vector" downstream script if ctfile is the input.
+```
+
+#base pair content calculation
+```{r}
+dotbracket_vector_bin <- numeric(length(dotbracket_vector))
+for (i in 1:length(dotbracket_vector)) {
+ if (dotbracket_vector[i] == ".") {
+   dotbracket_vector_bin[i] <- 1
+ } else {
+   dotbracket_vector_bin[i] <- 0
+ }
+}
+
+if ((window_size %% 2) == 0) {
+  gapnum <- window_size/2 + 1
+} else {
+  gapnum <- (window_size+1)/2 + 1
+}
+
+window_initvec <- numeric(length(dotbracket_vector))
+window_termvec <- numeric(length(dotbracket_vector))
+window_termvec[1] <- gapnum
+
+for (j in 1:gapnum) {
+  window_initvec[j] <- 1
+}
+
+for (k in (gapnum + 1):(length(dotbracket_vector))){
+  window_initvec[k] <- window_initvec[k-1] + 1
+}
+
+for (l in (length(dotbracket_vector) - gapnum + 1):(length(dotbracket_vector))) {
+  window_termvec[l] <- length(dotbracket_vector)
+}
+
+for (m in 2:(length(dotbracket_vector) - gapnum)) {
+  window_termvec[m] <- window_termvec[m-1] + 1
+}
+
+dotcount <- numeric(length(dotbracket_vector))
+for (o in 1:length(dotbracket_vector)) {
+  dotcount[o] <- sum(dotbracket_vector_bin[window_initvec[o]:window_termvec[o]])
+}
+
+dotperc <- numeric(length(dotbracket_vector))
+for (p in 1:length(dotbracket_vector)) {
+  dotperc[p] <- (dotcount[p])/(window_termvec[p] - window_initvec[p] + 1)
+}
+
+oneminus_dotperc <- 1 - dotperc
+```
+
+
+```{r}
+#Shannon smoothing with same move-median algorithm
+
+#USER: Input window size
+window_size_shan <- 50
+
+#movmedian calculation
+if ((window_size_shan %% 2) == 0) {
+  gapnum_shan <- window_size_shan/2 + 1
+} else {
+  gapnum_shan <- (window_size_shan+1)/2 + 1
+}
+
+window_initvec_shan <- numeric(length(shannon))
+window_termvec_shan <- numeric(length(shannon))
+window_termvec_shan[1] <- gapnum_shan
+
+for (j in 1:gapnum_shan) {
+  window_initvec_shan[j] <- 1
+}
+
+for (k in (gapnum_shan + 1):(length(shannon))){
+  window_initvec_shan[k] <- window_initvec_shan[k-1] + 1
+}
+
+for (l in (length(shannon) - gapnum_shan + 1):(length(shannon))) {
+  window_termvec_shan[l] <- length(shannon)
+}
+
+for (m in 2:(length(shannon) - gapnum_shan)) {
+  window_termvec_shan[m] <- window_termvec_shan[m-1] + 1
+}
+
+med_shan <- numeric(length(shannon))
+for (o in 1:length(shannon)) {
+  med_shan[o] <- median(shannon[window_initvec_shan[o]:window_termvec_shan[o]])
+}
+```
+
+```{r}
+a <- which(oneminus_dotperc > median(oneminus_dotperc)) #indices of the bpcs that are above median
+b <- which(med_shan < median(med_shan)) #indices of shannons that are below median
+
+abinter <- intersect(a,b) #intersection of the two vectors
+```
+#output proportion of nucleotides that meet threshold (upstream sanity check for user)
+
+```{r}
+#example of intermediary output here:
+length(abinter)/length(med_shan)
+```
+
+
+```{r}
+plot(oneminus_dotperc, type = 'l')
+```
+
+```{r}
+plot(med_shan, type = 'l')
+```
+
+```{r}
+finalwind <- 100
+
+finalwind_init <- numeric(ceiling(length(shannon)/finalwind))
+finalwind_fin <- numeric(ceiling(length(shannon)/finalwind))
+
+finalwind_init[1] <- 1
+for (k in 2:length(finalwind_init)) {
+  finalwind_init[k] <- finalwind_init[k-1] + 100
+}
+
+finalwind_fin[1] <- 100
+for (k in 2:length(finalwind_fin)) {
+  finalwind_fin[k] <- finalwind_fin[k-1] + 100
+}
+
+finalwind_fin[length(finalwind_fin)] <- length(shannon)
+
+structure_counts <- numeric(length(finalwind_fin))
+for (o in 1:length(structure_counts)) {
+  count_raw <- sum(finalwind_init[o]<=abinter & abinter<=finalwind_fin[o])
+  window_size <- (finalwind_fin[o] - finalwind_init[o] + 1)
+  structure_counts[o] <- 100*(count_raw/window_size)
+}
+
+finalwind_inds <- seq(from = 50, to = length(shannon), by = 100)
+```
+
+```{r}
+plot(x = finalwind_inds, y = structure_counts, type = 'l')
+```
+
+```{r}
+which(structure_counts > 90)
+which(structure_counts > 75 & structure_counts < 90)
+which(structure_counts > 50 & structure_counts < 75)
+```
+
+```{r}
+# data_unordered <- data.frame(pos = finalwind_inds, vals = structure_counts)
+# dato <- arrange(data_unordered, desc(vals))
+# dat_with_cols <- dato %>% mutate(cols = colorRampPalette(colors=c("#FF0000", "#FFFF00"))(length(finalwind_inds)))
+# dat <- arrange(dat_with_cols, pos)
+# 
+# dat$cols[which(dat$vals == 0)] <- "#FFFFFF"
+#FFFF00
+#color ramp creation
+colorramp <-  colorRampPalette(colors=c("#FFFF00", "#FF0000"))(101)
+inds_colors <- numeric(length(finalwind_inds))
+
+for (i in 1:length(structure_counts)) {
+  inds_colors[i] <- colorramp[structure_counts[i]+1]
+}
+
+inds_colors[which(inds_colors == "#FFFF00")] <- "#FFFFFF"
+
+dat <- data.frame(pos = finalwind_inds, vals = structure_counts, cols = inds_colors)
+
+start <- finalwind_inds - 50
+end <- finalwind_inds + 50
+end[length(end)] <- length(shannon)
+
+## highlight region data
+rects <- data.frame(start=start, end=end, group=seq_along(start))
+
+library(ggplot2)
+d <- ggplot(data=dat, aes(pos, vals)) +
+  theme_minimal() +
+  geom_rect(data=rects, inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin=min(dat$vals),
+                ymax=max(dat$vals), group=group), color="transparent", 
+            fill=as.character(dat$cols), alpha=1) + geom_line(lty=1, color="black", size = 0.9) +
+  xlab("Nucleotide") + ylab("% High BPC/Low Shannon Entropy")
+```
+
+
+```{r}
+#changing axis bounds to "zoom in" on region (1-2500)
+#output text file of generated data - bpc, shannon, final file of well defined structure
+#automate CT file conversion to dot bracket structure file
+#static output with 10 discrete colors
+
+d
+```
+
+```{r}
+colorRampPalette(colors=c("#FF0000", "#FFFF00"))(length(dat$vals))
+```
+
+
+----- the next two blocks are representative tests showcasing some graph-building to be workshopped ----
+
+```{r}
+## Example data - this is for testing...
+set.seed(0)
+dat <- data.frame(dates=seq.Date(Sys.Date(), Sys.Date()+99, 1),
+                  value=cumsum(rnorm(100)))
+
+## Determine highlighted regions
+v <- rep(0, 100)
+v[c(5:20, 30:35, 90:100)] <- 1
+
+## Get the start and end points for highlighted regions
+inds <- diff(c(0, v))
+start <- dat$dates[inds == 1]
+end <- dat$dates[inds == -1]
+if (length(start) > length(end)) end <- c(end, tail(dat$dates, 1))
+
+## highlight region data
+rects <- data.frame(start=start, end=end, group=seq_along(start), coloring=c(1.2, 3.2, 4.8))
+
+library(ggplot2)
+ggplot(data=dat, aes(dates, value)) +
+  theme_minimal() +
+  geom_line(lty=2, color="steelblue", lwd=1.1) +
+  geom_point() +
+  geom_rect(data=rects, inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin=min(dat$value),
+                ymax=max(dat$value), group=group), color="transparent", fill="orange", alpha=0.3) + geom_tile()
+```
+
+```{r}
+x<-c(4.80,1.09,33.40,0.00,11.63,1.86,2.22,-10.95,-3.09,0.00,2.38,0.00,
+         43.46,12.55,-49.51,0.00,0.00,0.00,1.72,0.00,0.00,-0.74,0.00,-5.79)
+
+    image(matrix(x), col=colorRampPalette(colors=c("#FF0000", "#FFFF00"))(length(x)))
+    image(matrix(x), col=colorRampPalette(colors=c("#FF0000", "#FFFF00"))(length(unique(x))))
+```
+
