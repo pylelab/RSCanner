@@ -19,43 +19,30 @@ library(xlsx)
 library(seqinr)
 ```
 
-USER INPUTS: HCV TEST-- uncomment this when you want to see HCV results (from Tavares, et al. )
-```{r}
-# bpcinput <- (read_excel("structured-ness_SF_default.xlsx", sheet = 2, col_names = FALSE))
-# shannoninput <- (read_excel("structured_ness_shannon_results.xlsx", sheet = 2, col_names = TRUE))
-# 
-# #USER: Input dot-bracket file
-# dotbracket_vector <- bpcinput$'...3'
-# 
-# #USER (OPTIONAL): Input list of Shannon values
-# shannon <- shannoninput$Shannon
-# 
-# #USER: Input window size
-# window_size <- 50
-```
-
-
-
+#loading of the data
 USER INPUTS: JFH1 HCV genomic RNA TEST-- uncomment this when you want to see JFH1 HCV genomic RNA results
 ```{r}
-bpcinput <- seqinr::read.fasta("HCV_JFH1_2a.txt", set.attributes = FALSE, whole.header = FALSE)
-shannoninput <- (read_excel("Dataset_S1_HCV_genome_SHAPE_reactivities.xlsx", sheet = 3, col_names = TRUE))
 
 #USER: Input dot-bracket file
-dotbracket_vector <- bpcinput$ENERGY[((length(bpcinput$ENERGY)/2)+1):length(bpcinput$ENERGY)]
+dotbracketinput <- seqinr::read.fasta("HCV_JFH1_2a.txt", set.attributes = FALSE, whole.header = FALSE)
+dotbracket_vector <- dotbracketinput$ENERGY[((length(dotbracketinput$ENERGY)/2)+1):length(dotbracketinput$ENERGY)]
+
+#USER: Input ct file
+ctfileinput <- read.table("HCV_JFH1_2a_genome_model.ct")
 
 #USER (OPTIONAL): Input list of Shannon values
+shannoninput <- read.table("shannon.txt", header = TRUE)
 shannon <- shannoninput$Shannon
 
-#USER: Input window size
+#USER: Input window size for BPC calculation
 window_size <- 50
+
+#USER: Input window size for Shannon entropy smoothing
+window_size_shan <- 50
+
 ```
 
-```{r}
-ctfileinput <- read.table("HCV_JFH1_2a_genome_model.ct")
-ctfileinput
-```
-
+#convert ct file to dot bracket vector, Run those lines if input structure file is a ct file
 ```{r}
 dotbracket_nums <- ctfileinput[[4]]
 #dotbracket_nums[which(dotbracket_nums == 0)] <- "."
@@ -104,9 +91,10 @@ for (k in 1:length(dotbracket_nums)) {
 dotbracket_real[which(dotbracket_real == "0")] <- "."
 
 ## USE ^^^ dotbracket_real for "dotbracket_vector" downstream script if ctfile is the input.
+dotbracket_vector <- dotbracket_real
 ```
 
-#base pair content calculation
+#base pair content calculation using customized window size
 ```{r}
 dotbracket_vector_bin <- numeric(length(dotbracket_vector))
 for (i in 1:length(dotbracket_vector)) {
@@ -158,10 +146,9 @@ oneminus_dotperc <- 1 - dotperc
 
 
 ```{r}
-#Shannon smoothing with same move-median algorithm
+#Shannon smoothing with customized size sliding window
 
-#USER: Input window size
-window_size_shan <- 50
+
 
 #movmedian calculation
 if ((window_size_shan %% 2) == 0) {
