@@ -182,7 +182,7 @@ for (o in 1:length(shannon)) {
   med_shan[o] <- median(shannon[window_initvec_shan[o]:window_termvec_shan[o]])
 }
 ```
-
+#calculate nucleotides position that have bpc above median and smoothed Shannon entropy below median (well-defined structures)
 ```{r}
 a <- which(oneminus_dotperc > median(oneminus_dotperc)) #indices of the bpcs that are above median
 b <- which(med_shan < median(med_shan)) #indices of shannons that are below median
@@ -196,15 +196,15 @@ abinter <- intersect(a,b) #intersection of the two vectors
 length(abinter)/length(med_shan)
 ```
 
-
+#plot BPC along the full length RNA 
 ```{r}
 plot(oneminus_dotperc, type = 'l')
 ```
-
+#plot the smoothed Shannon entropy
 ```{r}
 plot(med_shan, type = 'l')
 ```
-
+#plot the percentage of well-defined structures in non-overlaping bins along the RNA
 ```{r}
 finalwind <- 100
 
@@ -242,7 +242,7 @@ which(structure_counts > 90)
 which(structure_counts > 75 & structure_counts < 90)
 which(structure_counts > 50 & structure_counts < 75)
 ```
-
+#plot the percentage of well-defined structures along the RNA overlay with heatmap
 ```{r}
 # data_unordered <- data.frame(pos = finalwind_inds, vals = structure_counts)
 # dato <- arrange(data_unordered, desc(vals))
