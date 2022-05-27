@@ -244,13 +244,6 @@ which(structure_counts > 50 & structure_counts < 75)
 ```
 #plot the percentage of well-defined structures along the RNA overlay with heatmap
 ```{r}
-# data_unordered <- data.frame(pos = finalwind_inds, vals = structure_counts)
-# dato <- arrange(data_unordered, desc(vals))
-# dat_with_cols <- dato %>% mutate(cols = colorRampPalette(colors=c("#FF0000", "#FFFF00"))(length(finalwind_inds)))
-# dat <- arrange(dat_with_cols, pos)
-# 
-# dat$cols[which(dat$vals == 0)] <- "#FFFFFF"
-#FFFF00
 #color ramp creation
 colorramp <-  colorRampPalette(colors=c("#FFFF00", "#FF0000"))(101)
 inds_colors <- numeric(length(finalwind_inds))
@@ -270,65 +263,28 @@ end[length(end)] <- length(shannon)
 ## highlight region data
 rects <- data.frame(start=start, end=end, group=seq_along(start))
 
+# min and max x and y values
+ymin <- min(dat$vals)
+ymax <- max(dat$vals)
+xmin <- start[1]
+xmax <- end[length(end)]
+
 library(ggplot2)
-d <- ggplot(data=dat, aes(pos, vals)) +
-  theme_minimal() +
-  geom_rect(data=rects, inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin=min(dat$vals),
-                ymax=max(dat$vals), group=group), color="transparent", 
+heatmap <- ggplot(data=dat, aes(pos, vals)) +
+  theme_classic() +
+  geom_rect(data=rects, inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin=ymin,
+                ymax=ymax, group=group), color="transparent", 
             fill=as.character(dat$cols), alpha=1) + geom_line(lty=1, color="black", size = 0.9) +
-  xlab("Nucleotide") + ylab("% High BPC/Low Shannon Entropy")
-```
-
-
-```{r}
-#changing axis bounds to "zoom in" on region (1-2500)
-#output text file of generated data - bpc, shannon, final file of well defined structure
-#automate CT file conversion to dot bracket structure file
-#static output with 10 discrete colors
-
-d
+            coord_cartesian(xlim = c(xmin, xmax+50), ylim = c(ymin, ymax)) +
+  xlab("Nucleotide") + ylab("% Structure Content") + theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
+# Display plot
+heatmap
 ```
 
 ```{r}
-colorRampPalette(colors=c("#FF0000", "#FFFF00"))(length(dat$vals))
-```
-
-
------ the next two blocks are representative tests showcasing some graph-building to be workshopped ----
-
-```{r}
-## Example data - this is for testing...
-set.seed(0)
-dat <- data.frame(dates=seq.Date(Sys.Date(), Sys.Date()+99, 1),
-                  value=cumsum(rnorm(100)))
-
-## Determine highlighted regions
-v <- rep(0, 100)
-v[c(5:20, 30:35, 90:100)] <- 1
-
-## Get the start and end points for highlighted regions
-inds <- diff(c(0, v))
-start <- dat$dates[inds == 1]
-end <- dat$dates[inds == -1]
-if (length(start) > length(end)) end <- c(end, tail(dat$dates, 1))
-
-## highlight region data
-rects <- data.frame(start=start, end=end, group=seq_along(start), coloring=c(1.2, 3.2, 4.8))
-
-library(ggplot2)
-ggplot(data=dat, aes(dates, value)) +
-  theme_minimal() +
-  geom_line(lty=2, color="steelblue", lwd=1.1) +
-  geom_point() +
-  geom_rect(data=rects, inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin=min(dat$value),
-                ymax=max(dat$value), group=group), color="transparent", fill="orange", alpha=0.3) + geom_tile()
-```
-
-```{r}
-x<-c(4.80,1.09,33.40,0.00,11.63,1.86,2.22,-10.95,-3.09,0.00,2.38,0.00,
-         43.46,12.55,-49.51,0.00,0.00,0.00,1.72,0.00,0.00,-0.74,0.00,-5.79)
-
-    image(matrix(x), col=colorRampPalette(colors=c("#FF0000", "#FFFF00"))(length(x)))
-    image(matrix(x), col=colorRampPalette(colors=c("#FF0000", "#FFFF00"))(length(unique(x))))
+## Run this line if you want to save the plot to a high quality immage ##
+# Save generated heatmap to output file
+heatmap
+ggsave("filename.tiff", device="tiff", path=NULL, width=4, height=2, dpi=300)
 ```
 
