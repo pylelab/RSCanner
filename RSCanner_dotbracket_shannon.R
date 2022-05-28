@@ -141,6 +141,14 @@ if (length(finalwind_inds) != length(structure_counts)) {
   finalwind_inds_real[length(finalwind_inds_real)] <- finalwind_inds[length(finalwind_inds)]+finalwind
 } else (finalwind_inds_real <- finalwind_inds)
 
+bin_number <- seq(from = 1, to = length(finalwind_inds_real), by = 1)
+unordered_results_table <- as.data.frame(cbind(bin_number, structure_counts, finalwind_init, finalwind_fin))
+ordered_results_table <- arrange(unordered_results_table, desc(structure_counts)) %>% rename("Bin Number" = bin_number) %>%
+  rename("% Structure Content" = structure_counts) %>% rename("Bin Start (nt)" = finalwind_init) %>% 
+  rename("Bin End (nt)" = finalwind_fin)
+
+write.csv(ordered_results_table, "ordered_structure_table.csv")
+
 #color ramp creation
 colorramp <-  colorRampPalette(colors=c("#FFFF00", "#FF0000"))(101)
 inds_colors <- numeric(length(finalwind_inds))
