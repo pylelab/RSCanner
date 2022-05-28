@@ -3,7 +3,7 @@ title: "RSCanner Script"
 author: "Gandhar Mahadeshwar"
 output: html_notebook
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 RSCanner script [property of Pyle Lab, Yale University]
 Written by Gandhar Mahadeshwar, Rafael Tavares
@@ -20,33 +20,30 @@ library(seqinr)
 ```
 
 #loading of the data
-USER INPUTS: JFH1 HCV genomic RNA TEST-- uncomment this when you want to see JFH1 HCV genomic RNA results
 ```{r}
-
 #USER: Input dot-bracket file
 dotbracketinput <- seqinr::read.fasta("HCV_JFH1_2a.txt", set.attributes = FALSE, whole.header = FALSE)
 dotbracket_vector <- dotbracketinput$ENERGY[((length(dotbracketinput$ENERGY)/2)+1):length(dotbracketinput$ENERGY)]
-
 #USER: Input ct file
 ctfileinput <- read.table("HCV_JFH1_2a_genome_model.ct")
-
 #USER (OPTIONAL): Input list of Shannon values
-shannoninput <- read.table("shannon.txt", header = TRUE)
+shannoninput <- (read_excel("Dataset_S1_HCV_genome_SHAPE_reactivities.xlsx", sheet = 3, col_names = TRUE))
+#shannoninput <- read_excel("shannon.txt", header = TRUE)
 shannon <- shannoninput$Shannon
-
 #USER: Input window size for BPC calculation
 window_size <- 50
-
 #USER: Input window size for Shannon entropy smoothing
 window_size_shan <- 50
-
+#USER: Input Shannon Entropy cutoff
+SE_cutoff <- 0.5
+#USER: Input BPC cutoff
+BPC_cutoff <- 0.5
 ```
 
-#convert ct file to dot bracket vector, Run those lines if input structure file is a ct file
+#convert ct file to dot bracket vector, Run those lines if input structure file is a ct file, NOT a dotbracket file
 ```{r}
 dotbracket_nums <- ctfileinput[[4]]
 #dotbracket_nums[which(dotbracket_nums == 0)] <- "."
-
 # dotbracket_real <- numeric(length(dotbracket_nums))
 # 
 # 
@@ -55,18 +52,14 @@ dotbracket_nums <- ctfileinput[[4]]
 #     dotbracket[i] <- brack_current
 #   }
 # }
-
 indexnotzero <- which(dotbracket_nums != 0)
-
 for (i in 2:length(indexnotzero)) {
   if(indexnotzero[i] - indexnotzero[i-1] != 1) {
     dotbracket_nums[indexnotzero[i]] <- "*"
   }
   dotbracket_nums[indexnotzero[1]] <- "*"
 }
-
 wichaster <- which(dotbracket_nums == "*")
-
 for (j in 1:length(wichaster)) {
   if (j %% 2 == 0) {
     dotbracket_nums[wichaster[j]] <- ")"
@@ -74,11 +67,8 @@ for (j in 1:length(wichaster)) {
     dotbracket_nums[wichaster[j]] <- "("
   }
 }
-
 dotbracket_real <- dotbracket_nums
-
 `%!in%` <- Negate(`%in%`)
-
 for (k in 1:length(dotbracket_nums)) {
   ind <- wichaster[which(wichaster < k)[length(which(wichaster < k))]]
   if (dotbracket_real[k] %!in% c("0", "(", ")")) {
@@ -87,9 +77,7 @@ for (k in 1:length(dotbracket_nums)) {
     dotbracket_real[k] <- dotbracket_nums[k]
   }
 }
-
 dotbracket_real[which(dotbracket_real == "0")] <- "."
-
 ## USE ^^^ dotbracket_real for "dotbracket_vector" downstream script if ctfile is the input.
 dotbracket_vector <- dotbracket_real
 ```
@@ -104,93 +92,75 @@ for (i in 1:length(dotbracket_vector)) {
    dotbracket_vector_bin[i] <- 0
  }
 }
-
 if ((window_size %% 2) == 0) {
   gapnum <- window_size/2 + 1
 } else {
   gapnum <- (window_size+1)/2 + 1
 }
-
 window_initvec <- numeric(length(dotbracket_vector))
 window_termvec <- numeric(length(dotbracket_vector))
 window_termvec[1] <- gapnum
-
 for (j in 1:gapnum) {
   window_initvec[j] <- 1
 }
-
 for (k in (gapnum + 1):(length(dotbracket_vector))){
   window_initvec[k] <- window_initvec[k-1] + 1
 }
-
 for (l in (length(dotbracket_vector) - gapnum + 1):(length(dotbracket_vector))) {
   window_termvec[l] <- length(dotbracket_vector)
 }
-
 for (m in 2:(length(dotbracket_vector) - gapnum)) {
   window_termvec[m] <- window_termvec[m-1] + 1
 }
-
 dotcount <- numeric(length(dotbracket_vector))
 for (o in 1:length(dotbracket_vector)) {
   dotcount[o] <- sum(dotbracket_vector_bin[window_initvec[o]:window_termvec[o]])
 }
-
 dotperc <- numeric(length(dotbracket_vector))
 for (p in 1:length(dotbracket_vector)) {
   dotperc[p] <- (dotcount[p])/(window_termvec[p] - window_initvec[p] + 1)
 }
-
 oneminus_dotperc <- 1 - dotperc
 ```
 
 
 ```{r}
 #Shannon smoothing with customized size sliding window
-
-
-
 #movmedian calculation
 if ((window_size_shan %% 2) == 0) {
   gapnum_shan <- window_size_shan/2 + 1
 } else {
   gapnum_shan <- (window_size_shan+1)/2 + 1
 }
-
 window_initvec_shan <- numeric(length(shannon))
 window_termvec_shan <- numeric(length(shannon))
 window_termvec_shan[1] <- gapnum_shan
-
 for (j in 1:gapnum_shan) {
   window_initvec_shan[j] <- 1
 }
-
 for (k in (gapnum_shan + 1):(length(shannon))){
   window_initvec_shan[k] <- window_initvec_shan[k-1] + 1
 }
-
 for (l in (length(shannon) - gapnum_shan + 1):(length(shannon))) {
   window_termvec_shan[l] <- length(shannon)
 }
-
 for (m in 2:(length(shannon) - gapnum_shan)) {
   window_termvec_shan[m] <- window_termvec_shan[m-1] + 1
 }
-
 med_shan <- numeric(length(shannon))
 for (o in 1:length(shannon)) {
   med_shan[o] <- median(shannon[window_initvec_shan[o]:window_termvec_shan[o]])
 }
 ```
+
 #calculate nucleotides position that have bpc above median and smoothed Shannon entropy below median (well-defined structures)
 ```{r}
-a <- which(oneminus_dotperc > median(oneminus_dotperc)) #indices of the bpcs that are above median
-b <- which(med_shan < median(med_shan)) #indices of shannons that are below median
-
+a <- which(oneminus_dotperc > quantile(oneminus_dotperc, probs=c(BPC_cutoff),name=FALSE)) #indices of the bpcs that are above cutoff
+b <- which(med_shan < quantile(med_shan, probs=c(SE_cutoff),name=FALSE)) #indices of shannons that are below cutoff
 abinter <- intersect(a,b) #intersection of the two vectors
 ```
-#output proportion of nucleotides that meet threshold (upstream sanity check for user)
 
+#output proportion of nucleotides that meet threshold (upstream sanity check for user)
 ```{r}
 #example of intermediary output here:
 length(abinter)/length(med_shan)
@@ -207,34 +177,34 @@ plot(med_shan, type = 'l')
 #plot the percentage of well-defined structures in non-overlaping bins along the RNA
 ```{r}
 finalwind <- 100
-
 finalwind_init <- numeric(ceiling(length(shannon)/finalwind))
 finalwind_fin <- numeric(ceiling(length(shannon)/finalwind))
-
 finalwind_init[1] <- 1
 for (k in 2:length(finalwind_init)) {
-  finalwind_init[k] <- finalwind_init[k-1] + 100
+  finalwind_init[k] <- finalwind_init[k-1] + finalwind
 }
-
-finalwind_fin[1] <- 100
+finalwind_fin[1] <- finalwind
 for (k in 2:length(finalwind_fin)) {
-  finalwind_fin[k] <- finalwind_fin[k-1] + 100
+  finalwind_fin[k] <- finalwind_fin[k-1] + finalwind
 }
-
 finalwind_fin[length(finalwind_fin)] <- length(shannon)
-
 structure_counts <- numeric(length(finalwind_fin))
 for (o in 1:length(structure_counts)) {
   count_raw <- sum(finalwind_init[o]<=abinter & abinter<=finalwind_fin[o])
   window_size <- (finalwind_fin[o] - finalwind_init[o] + 1)
   structure_counts[o] <- 100*(count_raw/window_size)
 }
+finalwind_inds <- seq(from = finalwind/2, to = length(shannon), by = finalwind)
 
-finalwind_inds <- seq(from = 50, to = length(shannon), by = 100)
+if (length(finalwind_inds) != length(structure_counts)) {
+  finalwind_inds_real <- numeric(length(finalwind_inds)+1)
+  finalwind_inds_real[1:length(finalwind_inds_real)-1] <- finalwind_inds
+  finalwind_inds_real[length(finalwind_inds_real)] <- finalwind_inds[length(finalwind_inds)]+finalwind
+} else (finalwind_inds_real <- finalwind_inds)
 ```
 
 ```{r}
-plot(x = finalwind_inds, y = structure_counts, type = 'l')
+plot(x = finalwind_inds_real, y = structure_counts, type = 'l')
 ```
 
 ```{r}
@@ -242,33 +212,27 @@ which(structure_counts > 90)
 which(structure_counts > 75 & structure_counts < 90)
 which(structure_counts > 50 & structure_counts < 75)
 ```
+
 #plot the percentage of well-defined structures along the RNA overlay with heatmap
 ```{r}
 #color ramp creation
 colorramp <-  colorRampPalette(colors=c("#FFFF00", "#FF0000"))(101)
 inds_colors <- numeric(length(finalwind_inds))
-
 for (i in 1:length(structure_counts)) {
   inds_colors[i] <- colorramp[structure_counts[i]+1]
 }
-
 inds_colors[which(inds_colors == "#FFFF00")] <- "#FFFFFF"
-
 dat <- data.frame(pos = finalwind_inds, vals = structure_counts, cols = inds_colors)
-
 start <- finalwind_inds - 50
 end <- finalwind_inds + 50
 end[length(end)] <- length(shannon)
-
 ## highlight region data
 rects <- data.frame(start=start, end=end, group=seq_along(start))
-
 # min and max x and y values
 ymin <- min(dat$vals)
 ymax <- max(dat$vals)
 xmin <- start[1]
 xmax <- end[length(end)]
-
 library(ggplot2)
 heatmap <- ggplot(data=dat, aes(pos, vals)) +
   theme_classic() +
@@ -281,10 +245,15 @@ heatmap <- ggplot(data=dat, aes(pos, vals)) +
 heatmap
 ```
 
+## Run this block if you want to save the plot to a high quality image ##
 ```{r}
-## Run this line if you want to save the plot to a high quality immage ##
-# Save generated heatmap to output file
-heatmap
-ggsave("filename.tiff", device="tiff", path=NULL, width=4, height=2, dpi=300)
+## USER INPUT: Specify the parameters for the final plot
+filename <- "HCV_heatmap"
+device <- "tiff"
+path <- NULL # defaults to current working directory
+width <- 7
+height <- 3
+dpi <- 300
+##
+ggsave(filename, device=device, path=path, width=width, height=height, dpi=dpi)
 ```
-
