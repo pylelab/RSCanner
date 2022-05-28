@@ -3,7 +3,7 @@ title: "RSCanner Script"
 author: "Gandhar Mahadeshwar"
 output: html_notebook
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 RSCanner script [property of Pyle Lab, Yale University]
 Written by Gandhar Mahadeshwar, Rafael Tavares
@@ -202,6 +202,21 @@ if (length(finalwind_inds) != length(structure_counts)) {
   finalwind_inds_real[length(finalwind_inds_real)] <- finalwind_inds[length(finalwind_inds)]+finalwind
 } else (finalwind_inds_real <- finalwind_inds)
 ```
+
+#output ordered table of structure content
+```{r}
+bin_number <- seq(from = 1, to = length(finalwind_inds_real), by = 1)
+unordered_results_table <- as.data.frame(cbind(bin_number, structure_counts, finalwind_init, finalwind_fin))
+ordered_results_table <- arrange(unordered_results_table, desc(structure_counts)) %>% rename("Bin Number" = bin_number) %>%
+  rename("% Structure Content" = structure_counts) %>% rename("Bin Start (nt)" = finalwind_init) %>% 
+  rename("Bin End (nt)" = finalwind_fin)
+
+ordered_results_table
+
+#this writes the ordered table to csv!
+#write.csv(ordered_results_table)
+```
+
 
 ```{r}
 plot(x = finalwind_inds_real, y = structure_counts, type = 'l')
