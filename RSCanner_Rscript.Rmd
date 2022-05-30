@@ -230,17 +230,6 @@ ordered_results_table
 write.csv(ordered_results_table, "ordered_structure_table.csv")
 ```
 
-
-```{r}
-plot(x = finalwind_inds_real, y = structure_counts, type = 'l')
-```
-
-```{r}
-which(structure_counts > 90)
-which(structure_counts > 75 & structure_counts < 90)
-which(structure_counts > 50 & structure_counts < 75)
-```
-
 #plot the percentage of well-defined structures along the RNA overlay with heatmap
 ```{r}
 #color ramp creation
