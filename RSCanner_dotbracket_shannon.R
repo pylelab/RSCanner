@@ -1,10 +1,10 @@
 #!/usr/bin/env Rscript
 args=commandArgs(TRUE)
 if (length(args)<1){
-  cat("RSCanner_dotbracket_shannon.R dotbracket.fasta shannon.txt\n")
+  cat("RSCanner_FASTAdotbracket_shannon.R dotbracket.fasta shannon.txt\n")
   cat("\nInput:\n")
-  cat("    dotbracket.fasta          - dotbracket file in FASTA format\n")
-  cat("    shannon.txt               - single column of shannon entropy values with header 'Shannon'\n")  
+  cat("    dotbracket.fasta          - dotbracket file in FASTA format; three lines: title, sequence, dotbracket structure\n")
+  cat("    shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header \n")  
   cat("\nOutput:\n")
   cat("    heatmap.tiff              - output heatmap figure\n")
   quit()
@@ -20,14 +20,15 @@ library(xlsx)
 library(seqinr)
 
 #USER: Input dot-bracket file
-dotbracketinput <- seqinr::read.fasta(args[1], set.attributes = FALSE, whole.header = FALSE)
-dotbracket_vector <- dotbracketinput$ENERGY[((length(dotbracketinput$ENERGY)/2)+1):length(dotbracketinput$ENERGY)]
-#USER: Input ct file
-#ctfileinput <- read.table("HCV_JFH1_2a_genome_model.ct")
+#dotbracket file must have three lines: title line, sequence line, dotbracket line, and no newline characters except 
+#for the ones separating these three lines.
+dotbracketinput <- readLines(args[1])[3]
+dotbracket_vector <- strsplit(dotbracketinput, split = NULL)[[1]]
+
 #USER (OPTIONAL): Input list of Shannon values
-#shannoninput <- (read_excel("Dataset_S1_HCV_genome_SHAPE_reactivities.xlsx", sheet = 3, col_names = TRUE))
-shannoninput <- read_table(args[1], header = TRUE)
-shannon <- shannoninput$Shannon
+shannoninput <- read.table("HCV_shannon.txt", header = FALSE)
+shannon <- shannoninput$V2
+
 #USER: Input window size for BPC calculation
 window_size <- as.integer(readline(prompt = "Input window size for BPC calculation: "))
 #USER: Input window size for Shannon entropy smoothing
@@ -107,11 +108,19 @@ b <- which(med_shan < quantile(med_shan, probs=c(SE_cutoff),name=FALSE)) #indice
 abinter <- intersect(a,b) #intersection of the two vectors
 
 #plot BPC along the full length RNA 
-bpcplot <- plot(oneminus_dotperc, type = 'l')
+bpcplotdata <- as.data.frame(cbind(seq(1, length(oneminus_dotperc)), oneminus_dotperc)) %>% rename("Nucleotide Position" = V1) %>% 
+  rename("Base Pair Content" = oneminus_dotperc)
+ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content`)) + theme_classic() +
+  geom_line() + geom_hline(yintercept = BPC_cutoff, linetype = "dashed", color = "blue", size = 1)
+
 ggsave(bpcplot, device="tiff", width=7, height=3, dpi=300)
 
 #plot the smoothed Shannon entropy
-shannonplot <- plot(med_shan, type = 'l')
+shanplotdata <- as.data.frame(cbind(seq(1, length(med_shan)), med_shan)) %>% rename("Nucleotide Position" = V1) %>% 
+  rename("Smoothed Median Shannon Entropy" = med_shan)
+ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median Shannon Entropy`)) + theme_classic() +
+  geom_line() + geom_hline(yintercept = SE_cutoff, linetype = "dashed", color = "blue", size = 1)
+
 ggsave(shannonplot, device="tiff", width=7, height=3, dpi=300)
 
 #plot the percentage of well-defined structures in non-overlaping bins along the RNA
