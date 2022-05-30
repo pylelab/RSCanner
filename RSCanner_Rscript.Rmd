@@ -22,14 +22,18 @@ library(seqinr)
 #loading of the data
 ```{r}
 #USER: Input dot-bracket file
-dotbracketinput <- seqinr::read.fasta("HCV_JFH1_2a.txt", set.attributes = FALSE, whole.header = FALSE)
-dotbracket_vector <- dotbracketinput$ENERGY[((length(dotbracketinput$ENERGY)/2)+1):length(dotbracketinput$ENERGY)]
+#dotbracket file must have three lines: title line, sequence line, dotbracket line, and no newline characters except 
+#for the ones separating these three lines.
+
+dotbracketinput <- readLines("HCV_Jc1.dot")[3]
+dotbracket_vector <- strsplit(dotbracketinput, split = NULL)[[1]]
+
 #USER: Input ct file
-ctfileinput <- read.table("HCV_JFH1_2a_genome_model.ct")
+#ctfileinput <- read.table("HCV_Jc1.ct", skip = 1)$V5
+
 #USER (OPTIONAL): Input list of Shannon values
-shannoninput <- (read_excel("Dataset_S1_HCV_genome_SHAPE_reactivities.xlsx", sheet = 3, col_names = TRUE))
-#shannoninput <- read_excel("shannon.txt", header = TRUE)
-shannon <- shannoninput$Shannon
+shannoninput <- read.table("HCV_shannon.txt", header = FALSE)
+shannon <- shannoninput$V2
 #USER: Input window size for BPC calculation
 window_size <- 50
 #USER: Input window size for Shannon entropy smoothing
@@ -42,7 +46,7 @@ BPC_cutoff <- 0.5
 
 #convert ct file to dot bracket vector, Run those lines if input structure file is a ct file, NOT a dotbracket file
 ```{r}
-dotbracket_nums <- ctfileinput[[4]]
+dotbracket_nums <- ctfileinput
 #dotbracket_nums[which(dotbracket_nums == 0)] <- "."
 # dotbracket_real <- numeric(length(dotbracket_nums))
 # 
@@ -168,12 +172,21 @@ length(abinter)/length(med_shan)
 
 #plot BPC along the full length RNA 
 ```{r}
-plot(oneminus_dotperc, type = 'l')
+bpcplotdata <- as.data.frame(cbind(seq(1, length(oneminus_dotperc)), oneminus_dotperc)) %>% rename("Nucleotide Position" = V1) %>% 
+  rename("Base Pair Content" = oneminus_dotperc)
+ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content`)) + theme_classic() +
+  geom_line() + geom_hline(yintercept = BPC_cutoff, linetype = "dashed", color = "blue", size = 1)
 ```
+
+
 #plot the smoothed Shannon entropy
 ```{r}
-plot(med_shan, type = 'l')
+shanplotdata <- as.data.frame(cbind(seq(1, length(med_shan)), med_shan)) %>% rename("Nucleotide Position" = V1) %>% 
+  rename("Smoothed Median Shannon Entropy" = med_shan)
+ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median Shannon Entropy`)) + theme_classic() +
+  geom_line() + geom_hline(yintercept = SE_cutoff, linetype = "dashed", color = "blue", size = 1)
 ```
+
 #plot the percentage of well-defined structures in non-overlaping bins along the RNA
 ```{r}
 finalwind <- 100
@@ -214,7 +227,7 @@ ordered_results_table <- arrange(unordered_results_table, desc(structure_counts)
 ordered_results_table
 
 #this writes the ordered table to csv!
-#write.csv(ordered_results_table)
+write.csv(ordered_results_table, "ordered_structure_table.csv")
 ```
 
 
