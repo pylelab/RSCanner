@@ -1,0 +1,218 @@
+#!/usr/bin/env Rscript
+args=commandArgs(TRUE)
+if (length(args)<1){
+  cat("RSCanner_TEXTdotbracket_shannon.R dotbracket.ct shannon.txt\n")
+  cat("\nInput:\n")
+  cat("    dotbracket.ct             - CT format file; six columns after one header line\n")
+  cat("    shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header \n")  
+  cat("\nOutput:\n")
+  cat("    heatmap.tiff              - output heatmap figure\n")
+  quit()
+}
+
+library(readxl)
+library(MASS)
+library(tidyverse)
+library(dplyr)
+library(grid)
+library(boxplotdbl)
+library(xlsx)
+library(seqinr)
+
+
+#USER: Input ct file
+ctfileinput <- read.table("HCV_Jc1.ct", skip = 1)$V5
+
+#USER (OPTIONAL): Input list of Shannon values
+shannoninput <- read.table("HCV_shannon.txt", header = FALSE)
+shannon <- shannoninput$V2
+
+#USER: Input window size for BPC calculation
+window_size <- as.integer(readline(prompt = "Input window size for BPC calculation: "))
+#USER: Input window size for Shannon entropy smoothing
+window_size_shan <- as.integer(readline(prompt = "Input window size for Shannon Entropy smoothing: "))
+#USER: Input Shannon Entropy cutoff
+SE_cutoff <- as.double(readline(prompt = "Input Shannon Entropy cutoff: "))
+#USER: Input BPC cutoff
+BPC_cutoff <- as.double(readline(prompt = "Input Shannon Entropy cutoff: "))
+
+#convert ct file to dot bracket vector, Run those lines if input structure file is a ct file, NOT a dotbracket file
+dotbracket_nums <- ctfileinput
+indexnotzero <- which(dotbracket_nums != 0)
+for (i in 2:length(indexnotzero)) {
+  if(indexnotzero[i] - indexnotzero[i-1] != 1) {
+    dotbracket_nums[indexnotzero[i]] <- "*"
+  }
+  dotbracket_nums[indexnotzero[1]] <- "*"
+}
+wichaster <- which(dotbracket_nums == "*")
+for (j in 1:length(wichaster)) {
+  if (j %% 2 == 0) {
+    dotbracket_nums[wichaster[j]] <- ")"
+  } else {
+    dotbracket_nums[wichaster[j]] <- "("
+  }
+}
+dotbracket_real <- dotbracket_nums
+`%!in%` <- Negate(`%in%`)
+for (k in 1:length(dotbracket_nums)) {
+  ind <- wichaster[which(wichaster < k)[length(which(wichaster < k))]]
+  if (dotbracket_real[k] %!in% c("0", "(", ")")) {
+    dotbracket_real[k] <- dotbracket_nums[ind]
+  } else {
+    dotbracket_real[k] <- dotbracket_nums[k]
+  }
+}
+dotbracket_real[which(dotbracket_real == "0")] <- "."
+## USE ^^^ dotbracket_real for "dotbracket_vector" downstream script if ctfile is the input.
+dotbracket_vector <- dotbracket_real
+
+dotbracket_vector_bin <- numeric(length(dotbracket_vector))
+for (i in 1:length(dotbracket_vector)) {
+  if (dotbracket_vector[i] == ".") {
+    dotbracket_vector_bin[i] <- 1
+  } else {
+    dotbracket_vector_bin[i] <- 0
+  }
+}
+if ((window_size %% 2) == 0) {
+  gapnum <- window_size/2 + 1
+} else {
+  gapnum <- (window_size+1)/2 + 1
+}
+window_initvec <- numeric(length(dotbracket_vector))
+window_termvec <- numeric(length(dotbracket_vector))
+window_termvec[1] <- gapnum
+for (j in 1:gapnum) {
+  window_initvec[j] <- 1
+}
+for (k in (gapnum + 1):(length(dotbracket_vector))){
+  window_initvec[k] <- window_initvec[k-1] + 1
+}
+for (l in (length(dotbracket_vector) - gapnum + 1):(length(dotbracket_vector))) {
+  window_termvec[l] <- length(dotbracket_vector)
+}
+for (m in 2:(length(dotbracket_vector) - gapnum)) {
+  window_termvec[m] <- window_termvec[m-1] + 1
+}
+dotcount <- numeric(length(dotbracket_vector))
+for (o in 1:length(dotbracket_vector)) {
+  dotcount[o] <- sum(dotbracket_vector_bin[window_initvec[o]:window_termvec[o]])
+}
+dotperc <- numeric(length(dotbracket_vector))
+for (p in 1:length(dotbracket_vector)) {
+  dotperc[p] <- (dotcount[p])/(window_termvec[p] - window_initvec[p] + 1)
+}
+oneminus_dotperc <- 1 - dotperc
+
+#Shannon smoothing with customized size sliding window
+#movmedian calculation
+if ((window_size_shan %% 2) == 0) {
+  gapnum_shan <- window_size_shan/2 + 1
+} else {
+  gapnum_shan <- (window_size_shan+1)/2 + 1
+}
+window_initvec_shan <- numeric(length(shannon))
+window_termvec_shan <- numeric(length(shannon))
+window_termvec_shan[1] <- gapnum_shan
+for (j in 1:gapnum_shan) {
+  window_initvec_shan[j] <- 1
+}
+for (k in (gapnum_shan + 1):(length(shannon))){
+  window_initvec_shan[k] <- window_initvec_shan[k-1] + 1
+}
+for (l in (length(shannon) - gapnum_shan + 1):(length(shannon))) {
+  window_termvec_shan[l] <- length(shannon)
+}
+for (m in 2:(length(shannon) - gapnum_shan)) {
+  window_termvec_shan[m] <- window_termvec_shan[m-1] + 1
+}
+med_shan <- numeric(length(shannon))
+for (o in 1:length(shannon)) {
+  med_shan[o] <- median(shannon[window_initvec_shan[o]:window_termvec_shan[o]])
+}
+
+a <- which(oneminus_dotperc > quantile(oneminus_dotperc, probs=c(BPC_cutoff),name=FALSE)) #indices of the bpcs that are above cutoff
+b <- which(med_shan < quantile(med_shan, probs=c(SE_cutoff),name=FALSE)) #indices of shannons that are below cutoff
+abinter <- intersect(a,b) #intersection of the two vectors
+
+#plot BPC along the full length RNA 
+bpcplotdata <- as.data.frame(cbind(seq(1, length(oneminus_dotperc)), oneminus_dotperc)) %>% rename("Nucleotide Position" = V1) %>% 
+  rename("Base Pair Content" = oneminus_dotperc)
+ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content`)) + theme_classic() +
+  geom_line() + geom_hline(yintercept = BPC_cutoff, linetype = "dashed", color = "blue", size = 1)
+
+ggsave(bpcplot, device="tiff", width=7, height=3, dpi=300)
+
+#plot the smoothed Shannon entropy
+shanplotdata <- as.data.frame(cbind(seq(1, length(med_shan)), med_shan)) %>% rename("Nucleotide Position" = V1) %>% 
+  rename("Smoothed Median Shannon Entropy" = med_shan)
+ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median Shannon Entropy`)) + theme_classic() +
+  geom_line() + geom_hline(yintercept = SE_cutoff, linetype = "dashed", color = "blue", size = 1)
+
+ggsave(shannonplot, device="tiff", width=7, height=3, dpi=300)
+
+#plot the percentage of well-defined structures in non-overlaping bins along the RNA
+finalwind <- 100
+finalwind_init <- numeric(ceiling(length(shannon)/finalwind))
+finalwind_fin <- numeric(ceiling(length(shannon)/finalwind))
+finalwind_init[1] <- 1
+for (k in 2:length(finalwind_init)) {
+  finalwind_init[k] <- finalwind_init[k-1] + finalwind
+}
+finalwind_fin[1] <- finalwind
+for (k in 2:length(finalwind_fin)) {
+  finalwind_fin[k] <- finalwind_fin[k-1] + finalwind
+}
+finalwind_fin[length(finalwind_fin)] <- length(shannon)
+structure_counts <- numeric(length(finalwind_fin))
+for (o in 1:length(structure_counts)) {
+  count_raw <- sum(finalwind_init[o]<=abinter & abinter<=finalwind_fin[o])
+  window_size <- (finalwind_fin[o] - finalwind_init[o] + 1)
+  structure_counts[o] <- 100*(count_raw/window_size)
+}
+finalwind_inds <- seq(from = finalwind/2, to = length(shannon), by = finalwind)
+
+if (length(finalwind_inds) != length(structure_counts)) {
+  finalwind_inds_real <- numeric(length(finalwind_inds)+1)
+  finalwind_inds_real[1:length(finalwind_inds_real)-1] <- finalwind_inds
+  finalwind_inds_real[length(finalwind_inds_real)] <- finalwind_inds[length(finalwind_inds)]+finalwind
+} else (finalwind_inds_real <- finalwind_inds)
+
+bin_number <- seq(from = 1, to = length(finalwind_inds_real), by = 1)
+unordered_results_table <- as.data.frame(cbind(bin_number, structure_counts, finalwind_init, finalwind_fin))
+ordered_results_table <- arrange(unordered_results_table, desc(structure_counts)) %>% rename("Bin Number" = bin_number) %>%
+  rename("% Structure Content" = structure_counts) %>% rename("Bin Start (nt)" = finalwind_init) %>% 
+  rename("Bin End (nt)" = finalwind_fin)
+
+write.csv(ordered_results_table, "ordered_structure_table.csv")
+
+#color ramp creation
+colorramp <-  colorRampPalette(colors=c("#FFFF00", "#FF0000"))(101)
+inds_colors <- numeric(length(finalwind_inds))
+for (i in 1:length(structure_counts)) {
+  inds_colors[i] <- colorramp[structure_counts[i]+1]
+}
+inds_colors[which(inds_colors == "#FFFF00")] <- "#FFFFFF"
+dat <- data.frame(pos = finalwind_inds, vals = structure_counts, cols = inds_colors)
+start <- finalwind_inds - 50
+end <- finalwind_inds + 50
+end[length(end)] <- length(shannon)
+## highlight region data
+rects <- data.frame(start=start, end=end, group=seq_along(start))
+# min and max x and y values
+ymin <- min(dat$vals)
+ymax <- max(dat$vals)
+xmin <- start[1]
+xmax <- end[length(end)]
+library(ggplot2)
+heatmap <- ggplot(data=dat, aes(pos, vals)) +
+  theme_classic() +
+  geom_rect(data=rects, inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin=ymin,
+                                               ymax=ymax, group=group), color="transparent", 
+            fill=as.character(dat$cols), alpha=1) + geom_line(lty=1, color="black", size = 0.9) +
+  coord_cartesian(xlim = c(xmin, xmax+50), ylim = c(ymin, ymax)) +
+  xlab("Nucleotide") + ylab("% Structure Content") + theme(axis.text = element_text(size = 10, color="black"), 
+                                                           axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
+
+ggsave(heatmap, device="tiff", width=7, height=3, dpi=300)
