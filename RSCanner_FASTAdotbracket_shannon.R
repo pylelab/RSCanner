@@ -6,7 +6,10 @@ if (length(args)<1){
   cat("    dotbracket.fasta          - dotbracket file in FASTA format; three lines: title, sequence, dotbracket structure\n")
   cat("    shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header \n")  
   cat("\nOutput:\n")
-  cat("    heatmap.tiff              - output heatmap figure\n")
+  cat("    bpcplot.tiff                             - output heatmap figure\n")
+  cat("    shannonplot.tiff                         - output heatmap figure\n")
+  cat("    heatmap.tiff                             - output heatmap figure\n")
+  cat("    ordered_structure_table.csv              - output heatmap figure\n")
   quit()
 }
 
@@ -26,7 +29,7 @@ dotbracketinput <- readLines(args[1])[3]
 dotbracket_vector <- strsplit(dotbracketinput, split = NULL)[[1]]
 
 #USER (OPTIONAL): Input list of Shannon values
-shannoninput <- read.table("HCV_shannon.txt", header = FALSE)
+shannoninput <- read.table(args[2], header = FALSE)
 shannon <- shannoninput$V2
 
 #USER: Input window size for BPC calculation
