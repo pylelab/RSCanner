@@ -13,14 +13,8 @@ if (length(args)<1){
   quit()
 }
 
-library(readxl)
-library(MASS)
 library(tidyverse)
 library(dplyr)
-library(grid)
-library(boxplotdbl)
-library(xlsx)
-library(seqinr)
 
 #USER: Input dot-bracket file
 #dotbracket file must have three lines: title line, sequence line, dotbracket line, and no newline characters except 
@@ -33,13 +27,17 @@ shannoninput <- read.table(args[2], header = FALSE)
 shannon <- shannoninput$V2
 
 #USER: Input window size for BPC calculation
-window_size <- as.integer(readline(prompt = "Input window size for BPC calculation: "))
+cat("Input integer window size for BPC calculation (use 50 as default): ")
+window_size <- as.integer(readLines("stdin", 1))
 #USER: Input window size for Shannon entropy smoothing
-window_size_shan <- as.integer(readline(prompt = "Input window size for Shannon Entropy smoothing: "))
+cat("Input integer window size for Shannon Entropy smoothing (use 50 as default): ")
+window_size_shan <- as.integer(readLines("stdin", 1))
 #USER: Input Shannon Entropy cutoff
-SE_cutoff <- as.double(readline(prompt = "Input Shannon Entropy cutoff: "))
+cat("Input Shannon Entropy percentile cutoff, decimal between 0 and 1 (use 0.5 as default): ")
+SE_cutoff <- as.double(readLines("stdin", 1))
 #USER: Input BPC cutoff
-BPC_cutoff <- as.double(readline(prompt = "Input Shannon Entropy cutoff: "))
+cat("Input BPC percentile cutoff, decimal between 0 and 1 (use 0.5 as default): ")
+BPC_cutoff <- as.double(readLines("stdin", 1))
 
 dotbracket_vector_bin <- numeric(length(dotbracket_vector))
 for (i in 1:length(dotbracket_vector)) {
@@ -113,18 +111,40 @@ abinter <- intersect(a,b) #intersection of the two vectors
 #plot BPC along the full length RNA 
 bpcplotdata <- as.data.frame(cbind(seq(1, length(oneminus_dotperc)), oneminus_dotperc)) %>% rename("Nucleotide Position" = V1) %>% 
   rename("Base Pair Content" = oneminus_dotperc)
-ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content`)) + theme_classic() +
-  geom_line() + geom_hline(yintercept = BPC_cutoff, linetype = "dashed", color = "blue", size = 1)
+bpcplot <- ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content`)) + theme_classic() +
+  geom_line() + geom_hline(yintercept = quantile(oneminus_dotperc, probs=c(BPC_cutoff),name=FALSE), linetype = "dashed", color = "blue", size = 1)
 
-ggsave(bpcplot, device="tiff", width=7, height=3, dpi=300)
+cat("\n computation complete... saving base-pair content image. input image save settings: \n\n")
+#USER: Input width of saved image
+cat("Input width of saved base-pair content image (use 7 as default): ")
+widthinput <- as.integer(readLines("stdin", 1))
+#USER: Input height of saved image
+cat("Input height of saved base-pair content image (use 3 as default): ")
+heightinput <- as.integer(readLines("stdin", 1))
+#USER: Input resolution of saved image
+cat("Input integer resolution (dpi) of saved base-pair content image (use 300 as default): ")
+dpiinput <- as.integer(readLines("stdin", 1))
+
+ggsave("bpcplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
 
 #plot the smoothed Shannon entropy
 shanplotdata <- as.data.frame(cbind(seq(1, length(med_shan)), med_shan)) %>% rename("Nucleotide Position" = V1) %>% 
   rename("Smoothed Median Shannon Entropy" = med_shan)
-ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median Shannon Entropy`)) + theme_classic() +
-  geom_line() + geom_hline(yintercept = SE_cutoff, linetype = "dashed", color = "blue", size = 1)
+shannonplot <- ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median Shannon Entropy`)) + theme_classic() +
+  geom_line() + geom_hline(yintercept = quantile(med_shan, probs=c(SE_cutoff),name=FALSE), linetype = "dashed", color = "blue", size = 1)
 
-ggsave(shannonplot, device="tiff", width=7, height=3, dpi=300)
+cat("\n computation complete... saving shannon image. input image save settings: \n\n")
+#USER: Input width of saved image
+cat("Input integer width of saved shannon image (use 7 as default): ")
+widthinput <- as.integer(readLines("stdin", 1))
+#USER: Input height of saved image
+cat("Input integer height of saved shannon image (use 3 as default): ")
+heightinput <- as.integer(readLines("stdin", 1))
+#USER: Input resolution of saved image
+cat("Input integer resolution (dpi) of saved shannon image (use 300 as default): ")
+dpiinput <- as.integer(readLines("stdin", 1))
+
+ggsave("shannonplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
 
 #plot the percentage of well-defined structures in non-overlaping bins along the RNA
 finalwind <- 100
@@ -147,11 +167,11 @@ for (o in 1:length(structure_counts)) {
 }
 finalwind_inds <- seq(from = finalwind/2, to = length(shannon), by = finalwind)
 
-if (length(finalwind_inds) != length(structure_counts)) {
+invisible(if (length(finalwind_inds) != length(structure_counts)) {
   finalwind_inds_real <- numeric(length(finalwind_inds)+1)
   finalwind_inds_real[1:length(finalwind_inds_real)-1] <- finalwind_inds
   finalwind_inds_real[length(finalwind_inds_real)] <- finalwind_inds[length(finalwind_inds)]+finalwind
-} else (finalwind_inds_real <- finalwind_inds)
+} else (finalwind_inds_real <- finalwind_inds))
 
 bin_number <- seq(from = 1, to = length(finalwind_inds_real), by = 1)
 unordered_results_table <- as.data.frame(cbind(bin_number, structure_counts, finalwind_init, finalwind_fin))
@@ -189,4 +209,15 @@ heatmap <- ggplot(data=dat, aes(pos, vals)) +
   xlab("Nucleotide") + ylab("% Structure Content") + theme(axis.text = element_text(size = 10, color="black"), 
                                                            axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 
-ggsave(heatmap, device="tiff", width=7, height=3, dpi=300)
+cat("\n computation complete... saving heatmap image. input image save settings: \n\n")
+#USER: Input width of saved image
+cat("Input integer width of saved heatmap image (use 7 as default): ")
+widthinput <- as.integer(readLines("stdin", 1))
+#USER: Input height of saved image
+cat("Input integer height of saved heatmap image (use 3 as default): ")
+heightinput <- as.integer(readLines("stdin", 1))
+#USER: Input resolution of saved image
+cat("Input integer resolution (dpi) of saved heatmap image (use 300 as default): ")
+dpiinput <- as.integer(readLines("stdin", 1))
+
+ggsave("heatmap.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
