@@ -1,8 +1,11 @@
-# RScanner
+# RSCanner
 
-This set of scripts enables the user to conduct a rapid structure and stability assessment for RNAs. The script has been written as an Rmd file, and command line functionality has been provided via two separate R scripts, to be used depending on the type of input given.
+RSCanner is an R package for rapid assessment and visualization of RNA structural content that is particularly useful for long RNAs. The script has been written as an Rmd file, and command line functionality has been provided via two separate R scripts, to be used depending on the type of input given.
 
 ## file inputs and format
+
+RSCanner takes two types of input containing secondary structural information for the target RNA: 1 - RNA secondary structure in either dot-bracket notation (FASTA file) or CT (connectivity table); 2 - positional Shannon entropy for each nucleotide in the RNA, calculated from base pairing probabilities. Both inputs can be obtained from common secondary structure prediction programs (e.g., SuperFold (Smola et al. 2015), Fold from RNAstructure (Reuter and Matthews, 2010), RNAfold from ViennaRNA package (Lorenz et al. 2011)).
+
 dotbracket CT file should be formatted in the following way: first line is a header "information" line, then six columns of CT file data.
 
 dotbracket FASTA file should be formatted in the following way: dotbracket file must have three lines: title line, sequence line, dotbracket line, and no newline characters except for the ones separating these three lines.
@@ -23,7 +26,7 @@ To be used when dotbracket input is in the form of a FASTA file.
 For usage information and detailed input/output information, run the following in your terminal:
 
 ```
- Rscript RSCanner_CTdotbracket_shannon.R
+ Rscript RSCanner_FASTAdotbracket_shannon.R
 ```
 
 ## Example
