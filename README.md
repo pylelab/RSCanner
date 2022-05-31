@@ -4,7 +4,7 @@ RSCanner is an R package for rapid assessment and visualization of RNA structura
 
 ## file inputs and format
 
-RSCanner takes two types of input containing secondary structural information for the target RNA: 1 - RNA secondary structure in either dot-bracket notation (FASTA file) or CT (connectivity table); 2 - positional Shannon entropy for each nucleotide in the RNA, calculated from base pairing probabilities. Both inputs can be obtained from common secondary structure prediction programs (e.g., SuperFold (Smola et al. 2015), Fold from RNAstructure (Reuter and Matthews, 2010), RNAfold from ViennaRNA package (Lorenz et al. 2011)).
+RSCanner takes two types of input containing secondary structural information for the target RNA: 1 - RNA secondary structure in either dot-bracket notation (FASTA file) or CT (connectivity table); 2 - positional Shannon entropy for each nucleotide in the RNA, calculated from base pairing probabilities. Both inputs can be obtained from secondary structure prediction programs (e.g., SuperFold (Smola et al. 2015), Fold from RNAstructure (Reuter and Matthews, 2010), RNAfold from ViennaRNA package (Lorenz et al. 2011)).
 
 dotbracket CT file should be formatted in the following way: first line is a header "information" line, then six columns of CT file data.
 
@@ -13,7 +13,7 @@ dotbracket FASTA file should be formatted in the following way: dotbracket file 
 shannon entropy TEXT file should be formatted in the following way: two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header
 
 ## usage: RSCanner_CTdotbracket_shannon.R
-To be used when dotbracket input is in the form of a CT file.
+To be used when the secondary structure input is a CT file.
 For usage information and detailed input/output information, run the following in your terminal:
 
 ```
@@ -22,7 +22,7 @@ For usage information and detailed input/output information, run the following i
 
 
 ## usage: RSCanner_FASTAdotbracket_shannon.R
-To be used when dotbracket input is in the form of a FASTA file.
+To be used when the secondary structure input is in the dot bracket format (FASTA file).
 For usage information and detailed input/output information, run the following in your terminal:
 
 ```
