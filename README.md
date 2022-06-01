@@ -32,7 +32,8 @@ For usage information and detailed input/output information, run the following i
 ## Example
 Here is a fully worked example using the sample CT, dotbracket, and shannon text files included in this repository. Simply download the entire repository as-is, and run the following commands from within this repo directory.
 
-### using RSCanner_CTdotbracket_shannon.R
+### using RSCanner_CTdotbracket_shannon.R 
+#5The name for the R script is a little confusing: We could change "RSCanner_CTdotbracket_shannon.R" to "RSCanner_CT_shannon.R" "RSCanner_FASTAdotbracket_shannon.R" to "RSCanner_dotbracket_shannon.R"
 ```
 mkdir sample_outputs
 
