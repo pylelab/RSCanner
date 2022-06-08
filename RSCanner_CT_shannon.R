@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 args=commandArgs(TRUE)
 if (length(args)<1){
-  cat("RSCanner_TEXTdotbracket_shannon.R dotbracket.ct shannon.txt\n")
+  cat("RSCanner_CT_shannon.R dotbracket.ct shannon.txt\n")
   cat("\nInput:\n")
   cat("    dotbracket.ct             - CT format file; six columns after one header line\n")
   cat("    shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header \n")  
@@ -142,16 +142,18 @@ bpcplotdata <- as.data.frame(cbind(seq(1, length(oneminus_dotperc)), oneminus_do
 bpcplot <- ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content`)) + theme_classic() +
   geom_line() + geom_hline(yintercept = quantile(oneminus_dotperc, probs=c(BPC_cutoff),name=FALSE), linetype = "dashed", color = "blue", size = 1)
 
-cat("\n computation complete... saving base-pair content image. input image save settings: \n\n")
+cat("\n Input image save settings: \n\n")
 #USER: Input width of saved image
-cat("Input width of saved base-pair content image (use 7 as default): ")
+cat("Input integer width (use 7 as default): ")
 widthinput <- as.integer(readLines("stdin", 1))
 #USER: Input height of saved image
-cat("Input height of saved base-pair content image (use 3 as default): ")
+cat("Input integer height (use 3 as default): ")
 heightinput <- as.integer(readLines("stdin", 1))
 #USER: Input resolution of saved image
-cat("Input integer resolution (dpi) of saved base-pair content image (use 300 as default): ")
+cat("Input integer resolution (dpi) (use 300 as default): ")
 dpiinput <- as.integer(readLines("stdin", 1))
+
+cat("\n Computation complete... saving base-pair content image. \n\n")
 
 ggsave("bpcplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
 
@@ -161,16 +163,7 @@ shanplotdata <- as.data.frame(cbind(seq(1, length(med_shan)), med_shan)) %>% ren
 shannonplot <- ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median Shannon Entropy`)) + theme_classic() +
   geom_line() + geom_hline(yintercept = quantile(med_shan, probs=c(SE_cutoff),name=FALSE), linetype = "dashed", color = "blue", size = 1)
 
-cat("\n computation complete... saving shannon image. input image save settings: \n\n")
-#USER: Input width of saved image
-cat("Input integer width of saved shannon image (use 7 as default): ")
-widthinput <- as.integer(readLines("stdin", 1))
-#USER: Input height of saved image
-cat("Input integer height of saved shannon image (use 3 as default): ")
-heightinput <- as.integer(readLines("stdin", 1))
-#USER: Input resolution of saved image
-cat("Input integer resolution (dpi) of saved shannon image (use 300 as default): ")
-dpiinput <- as.integer(readLines("stdin", 1))
+cat("\n Computation complete... saving shannon image. \n\n")
 
 ggsave("shannonplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
 
@@ -195,11 +188,13 @@ for (o in 1:length(structure_counts)) {
 }
 finalwind_inds <- seq(from = finalwind/2, to = length(shannon), by = finalwind)
 
-invisible(if (length(finalwind_inds) != length(structure_counts)) {
+if (length(finalwind_inds) != length(structure_counts)) {
   finalwind_inds_real <- numeric(length(finalwind_inds)+1)
   finalwind_inds_real[1:length(finalwind_inds_real)-1] <- finalwind_inds
   finalwind_inds_real[length(finalwind_inds_real)] <- finalwind_inds[length(finalwind_inds)]+finalwind
-} else (finalwind_inds_real <- finalwind_inds))
+} else {
+  finalwind_inds_real <- finalwind_inds
+  }
 
 bin_number <- seq(from = 1, to = length(finalwind_inds_real), by = 1)
 unordered_results_table <- as.data.frame(cbind(bin_number, structure_counts, finalwind_init, finalwind_fin))
@@ -211,14 +206,14 @@ write.csv(ordered_results_table, "ordered_structure_table.csv")
 
 #color ramp creation
 colorramp <-  colorRampPalette(colors=c("#FFFF00", "#FF0000"))(101)
-inds_colors <- numeric(length(finalwind_inds))
+inds_colors <- numeric(length(finalwind_inds_real))
 for (i in 1:length(structure_counts)) {
   inds_colors[i] <- colorramp[structure_counts[i]+1]
 }
 inds_colors[which(inds_colors == "#FFFF00")] <- "#FFFFFF"
-dat <- data.frame(pos = finalwind_inds, vals = structure_counts, cols = inds_colors)
-start <- finalwind_inds - 50
-end <- finalwind_inds + 50
+dat <- data.frame(pos = finalwind_inds_real, vals = structure_counts, cols = inds_colors)
+start <- finalwind_inds_real - 50
+end <- finalwind_inds_real + 50
 end[length(end)] <- length(shannon)
 ## highlight region data
 rects <- data.frame(start=start, end=end, group=seq_along(start))
@@ -237,15 +232,6 @@ heatmap <- ggplot(data=dat, aes(pos, vals)) +
   xlab("Nucleotide") + ylab("% Structure Content") + theme(axis.text = element_text(size = 10, color="black"), 
                                                            axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 
-cat("\n computation complete... saving heatmap image. input image save settings: \n\n")
-#USER: Input width of saved image
-cat("Input integer width of saved heatmap image (use 7 as default): ")
-widthinput <- as.integer(readLines("stdin", 1))
-#USER: Input height of saved image
-cat("Input integer height of saved heatmap image (use 3 as default): ")
-heightinput <- as.integer(readLines("stdin", 1))
-#USER: Input resolution of saved image
-cat("Input integer resolution (dpi) of saved heatmap image (use 300 as default): ")
-dpiinput <- as.integer(readLines("stdin", 1))
+cat("\n Computation complete... saving heatmap image. \n\n")
 
 ggsave("heatmap.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
