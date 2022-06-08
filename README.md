@@ -12,21 +12,21 @@ dotbracket FASTA file should be formatted in the following way: dotbracket file 
 
 shannon entropy TEXT file should be formatted in the following way: two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header
 
-## usage: RSCanner_CTdotbracket_shannon.R
+## usage: RSCanner_CT_shannon.R
 To be used when the secondary structure input is a CT file.
 For usage information and detailed input/output information, run the following in your terminal:
 
 ```
- Rscript RSCanner_CTdotbracket_shannon.R
+ Rscript RSCanner_CT_shannon.R
 ```
 
 
-## usage: RSCanner_FASTAdotbracket_shannon.R
+## usage: RSCanner_dotbracket_shannon.R
 To be used when the secondary structure input is in the dot bracket format (FASTA file).
 For usage information and detailed input/output information, run the following in your terminal:
 
 ```
- Rscript RSCanner_FASTAdotbracket_shannon.R
+ Rscript RSCanner_dotbracket_shannon.R
 ```
 
 ## Example
@@ -38,7 +38,7 @@ mkdir sample_outputs
 
 cd sample_outputs
 
-Rscript ../RSCanner_CTdotbracket_shannon.R ../sample_test_files/HCV_Jc1.ct ../sample_test_files/HCV_shannon.txt
+Rscript ../RSCanner_CT_shannon.R ../sample_test_files/HCV_Jc1.ct ../sample_test_files/HCV_shannon.txt
 
 ```
 
@@ -48,7 +48,7 @@ mkdir sample_outputs
 
 cd sample_outputs
 
-Rscript ../RSCanner_FASTAdotbracket_shannon.R ../sample_test_files/HCV_Jc1.dot ../sample_test_files/HCV_shannon.txt
+Rscript ../RSCanner_dotbracket_shannon.R ../sample_test_files/HCV_Jc1.dot ../sample_test_files/HCV_shannon.txt
 
 ```
 
