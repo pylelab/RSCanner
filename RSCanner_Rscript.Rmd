@@ -19,14 +19,14 @@ library(dplyr)
 #dotbracket file must have three lines: title line, sequence line, dotbracket line, and no newline characters except 
 #for the ones separating these three lines.
 
-dotbracketinput <- readLines("sample_test_files/HCV_Jc1.dot")[3]
+dotbracketinput <- readLines("sample_test_files/lncRNA-GRS1.dot")[3]
 dotbracket_vector <- strsplit(dotbracketinput, split = NULL)[[1]]
 
 #USER: Input ct file
 #ctfileinput <- read.table("HCV_Jc1.ct", skip = 1)$V5
 
 #USER (OPTIONAL): Input list of Shannon values
-shannoninput <- read.table("sample_test_files/HCV_shannon.txt", header = FALSE)
+shannoninput <- read.table("sample_test_files/lncRNA-GRS1_shannon.txt", header = FALSE)
 shannon <- shannoninput$V2
 #USER: Input window size for BPC calculation
 window_size <- 50
@@ -41,15 +41,7 @@ BPC_cutoff <- 0.5
 #convert ct file to dot bracket vector, Run those lines if input structure file is a ct file, NOT a dotbracket file
 ```{r}
 dotbracket_nums <- ctfileinput
-#dotbracket_nums[which(dotbracket_nums == 0)] <- "."
-# dotbracket_real <- numeric(length(dotbracket_nums))
-# 
-# 
-# for (i in 1:length(dotbracket_real)) {
-#   while (dotbracket_nums[i] != 0) {
-#     dotbracket[i] <- brack_current
-#   }
-# }
+
 indexnotzero <- which(dotbracket_nums != 0)
 for (i in 2:length(indexnotzero)) {
   if(indexnotzero[i] - indexnotzero[i-1] != 1) {
@@ -203,11 +195,13 @@ for (o in 1:length(structure_counts)) {
 }
 finalwind_inds <- seq(from = finalwind/2, to = length(shannon), by = finalwind)
 
-invisible(if (length(finalwind_inds) != length(structure_counts)) {
+if (length(finalwind_inds) != length(structure_counts)) {
   finalwind_inds_real <- numeric(length(finalwind_inds)+1)
   finalwind_inds_real[1:length(finalwind_inds_real)-1] <- finalwind_inds
   finalwind_inds_real[length(finalwind_inds_real)] <- finalwind_inds[length(finalwind_inds)]+finalwind
-} else (finalwind_inds_real <- finalwind_inds))
+} else {
+  finalwind_inds_real <- finalwind_inds
+  }
 ```
 
 #output ordered table of structure content
@@ -221,21 +215,21 @@ ordered_results_table <- arrange(unordered_results_table, desc(structure_counts)
 ordered_results_table
 
 #this writes the ordered table to csv!
-write.csv(ordered_results_table, "ordered_structure_table.csv")
+#write.csv(ordered_results_table, "ordered_structure_table.csv")
 ```
 
 #plot the percentage of well-defined structures along the RNA overlay with heatmap
 ```{r}
 #color ramp creation
 colorramp <-  colorRampPalette(colors=c("#FFFF00", "#FF0000"))(101)
-inds_colors <- numeric(length(finalwind_inds))
+inds_colors <- numeric(length(finalwind_inds_real))
 for (i in 1:length(structure_counts)) {
   inds_colors[i] <- colorramp[structure_counts[i]+1]
 }
 inds_colors[which(inds_colors == "#FFFF00")] <- "#FFFFFF"
-dat <- data.frame(pos = finalwind_inds, vals = structure_counts, cols = inds_colors)
-start <- finalwind_inds - 50
-end <- finalwind_inds + 50
+dat <- data.frame(pos = finalwind_inds_real, vals = structure_counts, cols = inds_colors)
+start <- finalwind_inds_real - 50
+end <- finalwind_inds_real + 50
 end[length(end)] <- length(shannon)
 ## highlight region data
 rects <- data.frame(start=start, end=end, group=seq_along(start))
