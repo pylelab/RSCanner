@@ -6,9 +6,9 @@ RSCanner is an R package for rapid assessment and visualization of RNA structura
 
 RSCanner takes two types of input containing secondary structural information for the target RNA: 1 - RNA secondary structure in either dot-bracket notation (FASTA file) or CT (connectivity table); 2 - positional Shannon entropy for each nucleotide in the RNA, calculated from base pairing probabilities. Both inputs can be obtained from secondary structure prediction programs (e.g., SuperFold (Smola et al. 2015), Fold from RNAstructure (Reuter and Matthews, 2010), RNAfold from ViennaRNA package (Lorenz et al. 2011)).
 
-dotbracket CT file should be formatted in the following way: first line is a header "information" line, then six columns of CT file data.
+CT file should be formatted in the following way: first line is a header "information" line, then six columns of CT information.
 
-dotbracket FASTA file should be formatted in the following way: dotbracket file must have three lines: title line, sequence line, dotbracket line, and no newline characters except for the ones separating these three lines.
+dotbracket FASTA file should be formatted in the following way: the file must have three lines - title line, sequence line, dotbracket line, and no newline characters except for the ones separating these three lines.
 
 shannon entropy TEXT file should be formatted in the following way: two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header
 
