@@ -180,10 +180,11 @@ x_upper_bound <-length(shannon) # if no argument, default to length(shannon)
 ```{r}
 bpcplotdata <- as.data.frame(cbind(seq(1, length(oneminus_dotperc)), oneminus_dotperc)) %>% rename("Nucleotide Position" = V1) %>% 
   rename("Base Pair Content" = oneminus_dotperc)
-ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content`)) + theme_minimal() + 
+ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content`)) + theme_classic() + 
   geom_line() + 
   geom_hline(yintercept = quantile(oneminus_dotperc, probs=c(BPC_cutoff),name=FALSE), linetype = "dashed", color = "steelblue", size = 1) + 
-  scale_x_continuous(limits = c(x_low_bound, x_upper_bound))
+  scale_x_continuous(limits = c(x_low_bound, x_upper_bound))+
+  theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 ```
 
 ```{r}
@@ -196,10 +197,11 @@ ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content
 ```{r}
 shanplotdata <- as.data.frame(cbind(seq(1, length(med_shan)), med_shan)) %>% rename("Nucleotide Position" = V1) %>% 
   rename("Smoothed Median Shannon Entropy" = med_shan)
-ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median Shannon Entropy`)) + theme_minimal() +
+ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median Shannon Entropy`)) + theme_classic() +
   geom_line() + 
   geom_hline(yintercept = quantile(med_shan, probs=c(SE_cutoff),name=FALSE), linetype = "dashed", color = "steelblue", size = 1) + 
-  scale_x_continuous(limits = c(x_low_bound, x_upper_bound))
+  scale_x_continuous(limits = c(x_low_bound, x_upper_bound))+
+  theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 ```
 
 ```{r}
