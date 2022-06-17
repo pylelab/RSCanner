@@ -310,8 +310,9 @@ heatmap
 
 ```{r}
 ggplot(data=(new_dat %>% rename(`Structure Counts` = vals) %>% rename(`Nucleotide` = pos)), aes(x=`Nucleotide`, y=`Structure Counts`)) +
-  geom_bar(stat="identity", fill="steelblue")+
-  theme_minimal()
+  geom_bar(stat="identity",  fill="grey", colour="black", width=100)+
+  theme_classic()+
+  theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 ```
 
 
