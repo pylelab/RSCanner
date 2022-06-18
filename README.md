@@ -30,7 +30,6 @@ Output:
     heatmap.tiff                             - output heatmap figure
     ordered_structure_table.csv              - output heatmap figure
 ```
-(We need to add the additional outputs to the above)
 
 ## usage: RSCanner_dotbracket_shannon.R
 To be used when the secondary structure input is in the dot bracket format (FASTA file).
@@ -39,11 +38,11 @@ For usage information and detailed input/output information, run the following i
 ```
  Rscript RSCanner_dotbracket_shannon.R
 ```
-## User-defined parameters
+## user-defined parameters
 The program will prompt the user for specific parameters. The recommended values are displayed as the program runs and are listed below:
 
-Integer window size for BPC calculation: 50<br/>
-Integer window size for Shannon Entropy smoothing: 50<br/>
+Integer window size for BPC calculation: 51<br/>
+Integer window size for Shannon Entropy smoothing: 51<br/>
 Shannon Entropy percentile cutoff, decimal between 0 and 1: 0.5<br/>
 BPC percentile cutoff, decimal between 0 and 1: 0.5<br/>
 Integer lower bound: 1<br/>
@@ -52,6 +51,9 @@ Integer width of images: 7<br/>
 Integer height of images: 3<br/>
 Integer resolution of images (dpi): 300<br/>
 Integer window length for heatmap and smoothing computation: 100<br/>
+
+## how ends are handled
+
 
 ## Example
 Here is a fully worked example using the sample CT, dotbracket, and shannon text files included in this repository. Simply download the entire repository as-is, and run the following commands from within this repo directory.
