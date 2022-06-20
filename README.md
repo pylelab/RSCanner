@@ -2,15 +2,9 @@
 
 RSCanner is an R package for rapid assessment and visualization of RNA structural content that is particularly useful for long RNAs. The script has been written as an Rmd file, and command line functionality has been provided via two separate R scripts, to be used depending on the type of input given.
 
-## File inputs and algorithm description
+## Inputs and algorithm description
 
 Input files: 1 - RNA secondary structure in either dot-bracket notation (FASTA file) or CT (connectivity table); 2 - positional Shannon entropy for each nucleotide in the RNA, calculated from base pairing probabilities. Files should be formatted as below.
-
-CT file should be formatted in the following way: first line is a header "information" line, then six columns of CT information.
-
-dotbracket FASTA file should be formatted in the following way: the file must have three lines - title line, sequence line, dotbracket line, and no newline characters except for the ones separating these three lines.
-
-shannon entropy TEXT file should be formatted in the following way: two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header
 
 RSCanner scans the secondary structure provided along with Shannon entropy values in windows covering the entire RNA and calculates the base pair content (BPC) and median entropy values for each window. Then it computes those positions with BPC values above a user-defined cutoff (default = 50th percentile) and Shannon entropy values below a user-defined cutoff (default = 50th percentile). These positions are termed structure counts. RSCanner then plots the frequency distribution of structure counts across the RNA as both heatmap and histogram plots.  
 How are ends handled? Include here.
