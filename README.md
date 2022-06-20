@@ -13,6 +13,7 @@ dotbracket FASTA file should be formatted in the following way: the file must ha
 shannon entropy TEXT file should be formatted in the following way: two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header
 
 RSCanner scans the secondary structure provided along with Shannon entropy values in windows covering the entire RNA and calculates the base pair content (BPC) and median entropy values for each window. Then it computes those positions with BPC values above a user-defined cutoff (default = 50th percentile) and Shannon entropy values below a user-defined cutoff (default = 50th percentile). These positions are termed structure counts. RSCanner then plots the frequency distribution of structure counts across the RNA as both heatmap and histogram plots.  
+How are ends handled? Include here.
 
 ## Usage: RSCanner_CT_shannon.R
 To be used when the secondary structure input is a CT file.
@@ -53,8 +54,6 @@ Integer width of images: 7<br/>
 Integer height of images: 3<br/>
 Integer resolution of images (dpi): 300<br/>
 Integer window length for heatmap and smoothing computation: 100<br/>
-
-## how ends are handled
 
 
 ## Example
