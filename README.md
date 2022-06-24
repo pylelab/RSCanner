@@ -22,7 +22,7 @@ For usage information and detailed input/output information, run the following i
  Rscript RSCanner_CT_shannon.R <input_structure.ct>  <shannon.txt>
 
  Input:
-    dotbracket.ct             - CT format file; six columns after one header line
+    input_structure.ct             - CT format file; six columns after one header line
     shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = Shannon Entropy values with no header 
 
  Output:
