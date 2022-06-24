@@ -17,15 +17,26 @@ For usage information and detailed input/output information, run the following i
  Rscript RSCanner_CT_shannon.R
  
  # Terminal output
+ 
+ To run the script, do 
+ Rscript RSCanner_CT_shannon.R <input_structure.ct>  <shannon.txt>
+
  Input:
     dotbracket.ct             - CT format file; six columns after one header line
-    shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header 
+    shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = Shannon Entropy values with no header 
 
-Output:
-    bpcplot.tiff                             - output heatmap figure
-    shannonplot.tiff                         - output heatmap figure
-    heatmap.tiff                             - output heatmap figure
-    ordered_structure_table.csv              - output heatmap figure
+ Output:
+    bpcplot.tiff                             - output line plot figure
+    smoothed_shannonplot.tiff                - output line plot figure
+    structure_counts_histogram.tiff          - output histogram figure
+    structure_counts_heatmap.tiff            - output heatmap figure
+    
+    bpc_data.csv                             - output tab delimited file, col1=index, col2=necleotide number, col3=BPC
+    smoothed_Shannon_data.csv                - output tab delimited file, col1=index, col2=necleotide number, col3=smoothed Shannon Entropy
+    structure_counts.csv                     - output tab delimited file, col1=index, col2=structrue counts, col3=BPC, col4=smoothed Shannon Entropy
+    ordered_structure_table                  - output tab delimited file, col1=index, col2=Bin Number, col3=%structure counts, col4=Bin start(nt), col5=Bin end(nt) 
+
+
 ```
 
 ## Usage: RSCanner_dotbracket_shannon.R
