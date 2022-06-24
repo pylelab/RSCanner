@@ -31,9 +31,9 @@ For usage information and detailed input/output information, run the following i
     structure_counts_histogram.tiff          - output histogram figure
     structure_counts_heatmap.tiff            - output heatmap figure
     
-    bpc_data.csv                             - output tab delimited file, col1=index, col2=necleotide number, col3=BPC
-    smoothed_Shannon_data.csv                - output tab delimited file, col1=index, col2=necleotide number, col3=smoothed Shannon Entropy
-    structure_counts.csv                     - output tab delimited file, col1=index, col2=structrue counts, col3=BPC, col4=smoothed Shannon Entropy
+    bpc_data.csv                             - output tab delimited file, col1=index, col2=nucleotide number, col3=BPC
+    smoothed_Shannon_data.csv                - output tab delimited file, col1=index, col2=nucleotide number, col3=smoothed Shannon Entropy
+    structure_counts.csv                     - output tab delimited file, col1=index, col2=structure counts, col3=BPC, col4=smoothed Shannon Entropy
     ordered_structure_table.csv              - output tab delimited file, col1=index, col2=Bin Number, col3=%structure counts, col4=Bin start(nt), col5=Bin end(nt) 
 
 
