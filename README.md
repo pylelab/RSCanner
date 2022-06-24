@@ -58,7 +58,7 @@ Integer upper bound: length of transcript<br/>
 Integer width of images: 7<br/>
 Integer height of images: 3<br/>
 Integer resolution of images (dpi): 300<br/>
-Integer window length for heatmap and smoothing computation: 100<br/>
+Integer window length for histogram and heatmap: 100<br/>
 
 
 ## Example
