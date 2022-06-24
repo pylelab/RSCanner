@@ -40,6 +40,7 @@ SE_cutoff <- as.double(readLines("stdin", 1))
 cat("Input BPC percentile cutoff, decimal between 0 and 1 (use 0.5 as default): ")
 BPC_cutoff <- as.double(readLines("stdin", 1))
 
+#base pair content calculation using customized window size
 dotbracket_vector_bin <- numeric(length(dotbracket_vector))
 for (i in 1:length(dotbracket_vector)) {
   if (dotbracket_vector[i] == ".") {
@@ -51,7 +52,7 @@ for (i in 1:length(dotbracket_vector)) {
 if ((window_size %% 2) == 0) {
   gapnum <- window_size/2 + 1
 } else {
-  gapnum <- (window_size+1)/2 + 1
+  gapnum <- (window_size+1)/2 
 }
 window_initvec <- numeric(length(dotbracket_vector))
 window_termvec <- numeric(length(dotbracket_vector))
@@ -83,7 +84,7 @@ oneminus_dotperc <- 1 - dotperc
 if ((window_size_shan %% 2) == 0) {
   gapnum_shan <- window_size_shan/2 + 1
 } else {
-  gapnum_shan <- (window_size_shan+1)/2 + 1
+  gapnum_shan <- (window_size_shan+1)/2
 }
 window_initvec_shan <- numeric(length(shannon))
 window_termvec_shan <- numeric(length(shannon))
@@ -131,11 +132,11 @@ if (x_upper_bound > length(shannon)) {
 #plot BPC along the full length RNA 
 bpcplotdata <- as.data.frame(cbind(seq(1, length(oneminus_dotperc)), oneminus_dotperc)) %>% rename("Nucleotide Position" = V1) %>% 
   rename("Base Pair Content" = oneminus_dotperc)
-ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content`)) + theme_minimal() + 
+ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content`)) + theme_classic() + 
   geom_line() + 
-  geom_hline(yintercept = quantile(oneminus_dotperc, probs=c(BPC_cutoff),name=FALSE), linetype = "dashed", color = "steelblue", size = 1) + 
-  scale_x_continuous(limits = c(x_low_bound, x_upper_bound))
-
+  geom_hline(yintercept = quantile(oneminus_dotperc, probs=c(BPC_cutoff),name=FALSE), linetype = "dashed", color = "black", size = 1) + 
+  scale_x_continuous(limits = c(x_low_bound, x_upper_bound))+
+  theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 #save bpc data as a csv
 write.csv(bpcplotdata, "bpc_data.csv")
 
@@ -157,10 +158,11 @@ ggsave("bpcplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=
 #plot the smoothed Shannon entropy
 shanplotdata <- as.data.frame(cbind(seq(1, length(med_shan)), med_shan)) %>% rename("Nucleotide Position" = V1) %>% 
   rename("Smoothed Median Shannon Entropy" = med_shan)
-ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median Shannon Entropy`)) + theme_minimal() +
+ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median Shannon Entropy`)) + theme_classic() +
   geom_line() + 
-  geom_hline(yintercept = quantile(med_shan, probs=c(SE_cutoff),name=FALSE), linetype = "dashed", color = "steelblue", size = 1) + 
-  scale_x_continuous(limits = c(x_low_bound, x_upper_bound))
+  geom_hline(yintercept = quantile(med_shan, probs=c(SE_cutoff),name=FALSE), linetype = "dashed", color = "black", size = 1) + 
+  scale_x_continuous(limits = c(x_low_bound, x_upper_bound))+
+  theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 
 #save shannon data as a csv
 write.csv(shanplotdata, "shannon_data.csv")
@@ -266,7 +268,8 @@ cat("\n Computation complete... saving heatmap image. \n\n")
 ggsave("heatmap.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
 
 bar <- ggplot(data=(new_dat %>% rename(`Structure Counts` = vals) %>% rename(`Nucleotide` = pos)), aes(x=`Nucleotide`, y=`Structure Counts`)) +
-  geom_bar(stat="identity", fill="steelblue") +
-  theme_minimal()
+  geom_bar(stat="identity",  fill="grey", colour="black", width=100)+
+  theme_classic()+
+  theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 
 ggsave("structure_counts_barplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
