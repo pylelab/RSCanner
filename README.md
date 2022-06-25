@@ -29,7 +29,7 @@ For usage information and detailed input/output information, run the following i
 
  Output:
     bpcplot.tiff                             - output line plot figure
-    smoothed_shannonplot.tiff                - output line plot figure
+    smoothed_Shannonplot.tiff                - output line plot figure
     structure_counts_histogram.tiff          - output histogram figure
     structure_counts_heatmap.tiff            - output heatmap figure
     
