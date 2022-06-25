@@ -149,7 +149,7 @@ passing_nucs <- as.data.frame(cbind(`Nucleotide` = abinter,
                                     `Shannon` = med_shan[abinter]))
 
 #csv saved of nucleotides that pass both thresholds
-write.csv(passing_nucs, "structured_counts.csv")
+write.csv(passing_nucs, "structure_counts.csv")
 
 #USER: input the xbounds that you want to filter domain on
 cat("The transcript inputted is of length", length(shannon), "\n\n")
