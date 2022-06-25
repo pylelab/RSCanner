@@ -5,7 +5,7 @@ if (length(args)<1){
   cat("\n")
   cat("    Rscript RSCanner_CT_shannon.R <input_structure.ct>  <shannon.txt>\n")
   cat("\nInput:\n")
-  cat("    input_structure.dot          - dotbracket file in FASTA format; three lines: title, sequence, dotbracket structure\n")
+  cat("    input_structure.ct          - CT format file; six columns after one header line\n")
   cat("    shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header \n")  
   cat("\nOutput:\n")
   cat("    bpcplot.tiff                             - output line plot figure\n")
