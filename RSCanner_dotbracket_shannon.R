@@ -9,7 +9,7 @@ if (length(args)<1){
   cat("    shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header \n")  
   cat("\nOutput:\n")
   cat("    bpcplot.tiff                             - output line plot figure\n")
-  cat("    smoothed_shannonplot.tiff                - output line plot figure\n")
+  cat("    smoothed_Shannonplot.tiff                - output line plot figure\n")
   cat("    structure_counts_histogram.tiff          - output histogram figure\n")
   cat("    structure_counts_heatmap.tiff            - output heatmap figure\n")
   cat("\n")
@@ -176,7 +176,7 @@ write.csv(shanplotdata, "smoothed_Shannon_data.csv")
 
 cat("\n Computation complete... saving shannon image. \n\n")
 
-ggsave("smoothed_shannonplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
+ggsave("smoothed_Shannonplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
 
 #USER: Input window size for final computation
 cat("Input integer window length for histogram and heatmap (use 100 as default): ")
