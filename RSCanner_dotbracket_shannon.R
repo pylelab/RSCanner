@@ -1,15 +1,22 @@
 #!/usr/bin/env Rscript
 args=commandArgs(TRUE)
 if (length(args)<1){
-  cat("RSCanner_dotbracket_shannon.R dotbracket.fasta shannon.txt\n")
+  cat("To run the script, do\n")
+  cat("\n")
+  cat("    Rscript RSCanner_CT_shannon.R <input_structure.ct>  <shannon.txt>\n")
   cat("\nInput:\n")
-  cat("    dotbracket.fasta          - dotbracket file in FASTA format; three lines: title, sequence, dotbracket structure\n")
+  cat("    input_structure.dot          - dotbracket file in FASTA format; three lines: title, sequence, dotbracket structure\n")
   cat("    shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header \n")  
   cat("\nOutput:\n")
-  cat("    bpcplot.tiff                             - output heatmap figure\n")
-  cat("    shannonplot.tiff                         - output heatmap figure\n")
-  cat("    heatmap.tiff                             - output heatmap figure\n")
-  cat("    ordered_structure_table.csv              - output heatmap figure\n")
+  cat("    bpcplot.tiff                             - output line plot figure\n")
+  cat("    smoothed_shannonplot.tiff                - output line plot figure\n")
+  cat("    structure_counts_histogram.tiff          - output histogram figure\n")
+  cat("    structure_counts_heatmap.tiff            - output heatmap figure\n")
+  cat("\n")
+  cat("    bpc_data.csv                             - output tab delimited file, col1=index, col2=nucleotide number, col3=BPC\n")
+  cat("    smoothed_Shannon_data.csv                - output tab delimited file, col1=index, col2=nucleotide number, col3=smoothed Shannon Entropy\n")
+  cat("    structure_counts.csv                     - output tab delimited file, col1=index, col2=structure counts, col3=BPC, col4=smoothed Shannon Entropy\n")
+  cat("    ordered_structure_table.csv              - output tab delimited file, col1=index, col2=Bin Number, col3=%structure counts, col4=Bin start(nt), col5=Bin end(nt)\n")
   quit()
 }
 
@@ -28,10 +35,10 @@ shannoninput <- read.table(args[2], header = FALSE)
 shannon <- shannoninput$V2
 
 #USER: Input window size for BPC calculation
-cat("Input integer window size for BPC calculation (use 50 as default): ")
+cat("Input integer window size for BPC calculation (use 51 as default): ")
 window_size <- as.integer(readLines("stdin", 1))
 #USER: Input window size for Shannon entropy smoothing
-cat("Input integer window size for Shannon Entropy smoothing (use 50 as default): ")
+cat("Input integer window size for Shannon Entropy smoothing (use 51 as default): ")
 window_size_shan <- as.integer(readLines("stdin", 1))
 #USER: Input Shannon Entropy cutoff
 cat("Input Shannon Entropy percentile cutoff, decimal between 0 and 1 (use 0.5 as default): ")
@@ -115,7 +122,7 @@ passing_nucs <- as.data.frame(cbind(`Nucleotide` = abinter,
                                     `Shannon` = med_shan[abinter]))
 
 #csv saved of nucleotides that pass both thresholds
-write.csv(passing_nucs, "structured_nucleotides.csv")
+write.csv(passing_nucs, "structured_counts.csv")
 
 #USER: input the xbounds that you want to filter domain on
 cat("The transcript inputted is of length", length(shannon), "\n\n")
@@ -165,14 +172,14 @@ ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median 
   theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 
 #save shannon data as a csv
-write.csv(shanplotdata, "shannon_data.csv")
+write.csv(shanplotdata, "smoothed_Shannon_data.csv")
 
 cat("\n Computation complete... saving shannon image. \n\n")
 
-ggsave("shannonplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
+ggsave("smoothed_shannonplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
 
 #USER: Input window size for final computation
-cat("Input integer window length for heatmap and smoothing computation (use 100 as default): ")
+cat("Input integer window length for histogram and heatmap (use 100 as default): ")
 finalwind <- as.integer(readLines("stdin", 1))
 
 if ((finalwind %% 2) == 1) {
@@ -265,11 +272,11 @@ heatmap <- ggplot(data=new_dat, aes(pos, vals)) +
 
 cat("\n Computation complete... saving heatmap image. \n\n")
 
-ggsave("heatmap.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
+ggsave("structure_counts_heatmap.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
 
 bar <- ggplot(data=(new_dat %>% rename(`Structure Counts` = vals) %>% rename(`Nucleotide` = pos)), aes(x=`Nucleotide`, y=`Structure Counts`)) +
   geom_bar(stat="identity",  fill="grey", colour="black", width=100)+
   theme_classic()+
   theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 
-ggsave("structure_counts_barplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
+ggsave("structure_counts_histogram.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
