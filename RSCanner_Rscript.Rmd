@@ -30,13 +30,15 @@ dotbracket_vector <- strsplit(dotbracketinput, split = NULL)[[1]]
 shannoninput <- read.table("sample_test_files/lncRNA-GRS1_shannon.txt", header = FALSE)
 shannon <- shannoninput$V2
 #USER: Input window size for BPC calculation
-window_size <- 50
+window_size <- 51
 #USER: Input window size for Shannon entropy smoothing
-window_size_shan <- 50
+window_size_shan <- 51
 #USER: Input Shannon Entropy cutoff
 SE_cutoff <- 0.5
 #USER: Input BPC cutoff
 BPC_cutoff <- 0.5
+#USER: Input integer window length for histogram and heatmap
+finalwind <- 100
 ```
 
 #convert ct file to dot bracket vector, Run those lines if input structure file is a ct file, NOT a dotbracket file
@@ -69,7 +71,6 @@ for (k in 1:length(dotbracket_nums)) {
   }
 }
 dotbracket_real[which(dotbracket_real == "0")] <- "."
-## USE ^^^ dotbracket_real for "dotbracket_vector" downstream script if ctfile is the input.
 dotbracket_vector <- dotbracket_real
 ```
 
@@ -86,7 +87,7 @@ for (i in 1:length(dotbracket_vector)) {
 if ((window_size %% 2) == 0) {
   gapnum <- window_size/2 + 1
 } else {
-  gapnum <- (window_size+1)/2 + 1
+  gapnum <- (window_size+1)/2 
 }
 window_initvec <- numeric(length(dotbracket_vector))
 window_termvec <- numeric(length(dotbracket_vector))
@@ -121,7 +122,7 @@ oneminus_dotperc <- 1 - dotperc
 if ((window_size_shan %% 2) == 0) {
   gapnum_shan <- window_size_shan/2 + 1
 } else {
-  gapnum_shan <- (window_size_shan+1)/2 + 1
+  gapnum_shan <- (window_size_shan+1)/2 
 }
 window_initvec_shan <- numeric(length(shannon))
 window_termvec_shan <- numeric(length(shannon))
@@ -155,7 +156,7 @@ passing_nucs <- as.data.frame(cbind(`Nucleotide` = abinter,
                                     `Shannon` = med_shan[abinter]))
 
 #csv saved of nucleotides that pass both thresholds
-#write.csv(passing_nucs, "structured_nucleotides.csv")
+#write.csv(passing_nucs, "structure_counts.csv")
 ```
 
 #output proportion of nucleotides that meet threshold (upstream sanity check for user)
@@ -206,12 +207,12 @@ ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median 
 
 ```{r}
 #save shannon data as a csv
-#write.csv(shanplotdata, "shannon_data.csv")
+#write.csv(shanplotdata, "smoothed_Shannon_data.csv")
 ```
 
 #plot the percentage of well-defined structures in non-overlaping bins along the RNA
 ```{r}
-finalwind <- 100
+
 
 if ((finalwind %% 2) == 1) {
   finalwind <- finalwind + 1
