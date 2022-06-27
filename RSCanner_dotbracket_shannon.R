@@ -135,7 +135,7 @@ x_upper_bound <- as.integer(readLines("stdin", 1))
 if (x_upper_bound > length(shannon)) {
   x_upper_bound <- length(shannon)
 } else {x_upper_bound <- x_upper_bound}
-
+pdf(NULL)
 #plot BPC along the full length RNA 
 bpcplotdata <- as.data.frame(cbind(seq(1, length(oneminus_dotperc)), oneminus_dotperc)) %>% rename("Nucleotide Position" = V1) %>% 
   rename("Base Pair Content" = oneminus_dotperc)
@@ -144,6 +144,7 @@ ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content
   geom_hline(yintercept = quantile(oneminus_dotperc, probs=c(BPC_cutoff),name=FALSE), linetype = "dashed", color = "black", size = 1) + 
   scale_x_continuous(limits = c(x_low_bound, x_upper_bound))+
   theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
+pdf(NULL)
 #save bpc data as a csv
 write.csv(bpcplotdata, "bpc_data.csv")
 
