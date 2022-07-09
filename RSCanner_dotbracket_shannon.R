@@ -175,8 +175,8 @@ ggsave("bpcplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=
 
 # Plot smoothed SE along the full length of the RNA
 shanplotdata <- as.data.frame(cbind(seq(1, length(med_shan)), med_shan)) %>% rename("Nucleotide Position" = V1) %>% 
-  rename("Smoothed Median Shannon Entropy" = med_shan)
-ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median Shannon Entropy`)) + theme_classic() +
+  rename("Smoothed Shannon Entropy" = med_shan)
+ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Shannon Entropy`)) + theme_classic() +
   geom_line() + 
   geom_hline(yintercept = quantile(med_shan, probs=c(SE_cutoff),name=FALSE), linetype = "dashed", color = "black", size = 1) + 
   scale_x_continuous(limits = c(x_low_bound, x_upper_bound))+
