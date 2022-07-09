@@ -20,24 +20,24 @@ For usage information and detailed input/output information, run the following i
  
  # Terminal output
  
- To run the script, do 
- Rscript RSCanner_CT_shannon.R <input_structure.ct>  <shannon.txt>
+To run the script, do
 
- Input:
-    input_structure.ct             - CT format file; six columns after one header line
-    shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = Shannon Entropy values with no header 
+    Rscript RSCanner_CT_shannon.R <input_structure.ct>  <shannon.txt>
 
- Output:
-    bpcplot.tiff                             - output line plot figure
-    smoothed_Shannonplot.tiff                - output line plot figure
+Input:
+    input_structure.ct        - CT format file; six columns after one header line
+    shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header 
+
+Output:
+    bpcplot.tiff                             - output BPC line plot figure
+    smoothed_Shannonplot.tiff                - output smoothed SE line plot figure
     structure_counts_histogram.tiff          - output histogram figure
-    structure_counts_heatmap.tiff            - output heatmap figure
-    
+    structure_counts_heatmap.tiff            - output final line plot/heatmap figure
+
     bpc_data.csv                             - output tab delimited file, col1=index, col2=nucleotide number, col3=BPC
     smoothed_Shannon_data.csv                - output tab delimited file, col1=index, col2=nucleotide number, col3=smoothed Shannon Entropy
     structure_counts.csv                     - output tab delimited file, col1=index, col2=structure counts, col3=BPC, col4=smoothed Shannon Entropy
-    ordered_structure_table.csv              - output tab delimited file, col1=index, col2=Bin Number, col3=%structure counts, col4=Bin start(nt), col5=Bin end(nt) 
-
+    ordered_structure_table.csv              - output tab delimited file, col1=index, col2=bin number, col3=% structure content, col4=bin start (nt), col5=bin end (nt)
 
 ```
 
@@ -48,6 +48,7 @@ For usage information and detailed input/output information, run the following i
 ```
  Rscript RSCanner_dotbracket_shannon.R
 ```
+
 ## User-defined parameters
 The program will prompt the user for specific parameters. The recommended values are displayed as the program runs and are listed below:
 
