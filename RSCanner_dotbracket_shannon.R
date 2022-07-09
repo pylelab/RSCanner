@@ -284,7 +284,6 @@ heatmap <- ggplot(data=new_dat, aes(pos, vals)) +
                                                            axis.title = element_text(size = 12), panel.border = element_rect(color="black", 
                                                                                                                              fill=NA, size = 1))
 
-
 cat("\n Computation complete... saving heatmap image. \n\n")
 
 #Save line plot/heatmap
