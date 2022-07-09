@@ -147,7 +147,7 @@ for (o in 1:length(shannon)) {
 ```
 ## Step 3: Filtering
 
-# Calculate nucleotides that have BPC above the threshold and smoothed SE below the threshold ("structure counts")
+# Filter nucleotides that have BPC above the threshold and smoothed SE below the threshold ("structure counts")
 ```{r}
 a <- which(oneminus_dotperc > quantile(oneminus_dotperc, probs=c(BPC_cutoff),name=FALSE)) #indices of the bpcs that are above cutoff
 b <- which(med_shan < quantile(med_shan, probs=c(SE_cutoff),name=FALSE)) #indices of shannons that are below cutoff
