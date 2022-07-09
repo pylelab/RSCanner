@@ -210,7 +210,7 @@ ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median 
   scale_x_continuous(limits = c(x_low_bound, x_upper_bound))+
   theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 
-#Save shannon data as a csv
+#Save smoothed SE data as a csv
 write.csv(shanplotdata, "smoothed_Shannon_data.csv")
 
 cat("\n Computation complete... saving shannon image. \n\n")
@@ -267,7 +267,6 @@ ordered_results_table <- arrange(unordered_results_table, desc(structure_counts)
 write.csv(ordered_results_table, "ordered_structure_table.csv")
 
 #Plot the percentage of structure content in non-overlapping bins along the RNA and overlay with a heatmap
-
 half_finalwind <- finalwind/2
 
 #Color ramp creation
@@ -302,7 +301,7 @@ ymax <- max(dat$vals)
 xmin <- new_rects$start[1]
 xmax <- new_rects$end[length(new_rects$end)]
 
-#Generate line plot with heatmap
+#Generate line plot with heatmap overlay
 heatmap <- ggplot(data=new_dat, aes(pos, vals)) +
   theme_classic() +
   geom_rect(data=new_rects, inherit.aes=FALSE, aes(xmin=starty[rects_lowwy:rects_uppy], xmax=endy[rects_lowwy:rects_uppy], ymin=ymin,
