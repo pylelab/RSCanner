@@ -133,7 +133,7 @@ write.csv(passing_nucs, "structure_counts.csv")
 
 #USER: input the x-axis bounds (nt) for visualization
 cat("The transcript inputted is of length", length(shannon), "\n\n")
-cat("Please input desired bounds for analysis, between 1 and", length(shannon), "\n\n")
+cat("Please input desired bounds for visualization, between 1 and", length(shannon), "\n\n")
 cat("Input integer lower bound (default value of 1): ")
 x_low_bound <- as.integer(readLines("stdin", 1))
 cat("Input integer upper bound (default value of", length(shannon), "): ")
