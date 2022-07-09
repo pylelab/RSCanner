@@ -26,7 +26,7 @@ dotbracketinput <- readLines("sample_test_files/lncRNA-GRS1.dot")[3]
 dotbracket_vector <- strsplit(dotbracketinput, split = NULL)[[1]]
 
 #USER: Input ct file. Uncomment this to load in the ct file example instead.
-#ctfileinput <- read.table("HCV_Jc1.ct", skip = 1)$V5
+#ctfileinput <- read.table("sample_test_files/HCV_Jc1.ct", skip = 1)$V5
 
 #USER (OPTIONAL): Input list of Shannon values
 shannoninput <- read.table("sample_test_files/lncRNA-GRS1_shannon.txt", header = FALSE)
