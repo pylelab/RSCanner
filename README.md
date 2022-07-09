@@ -4,7 +4,7 @@ RSCanner is an R package for rapid assessment and visualization of RNA structura
 
 ## Inputs and algorithm description
 
-Input files: 1 - RNA secondary structure in either dot-bracket notation (FASTA file) or CT (connectivity table); 2 - positional Shannon entropy for each nucleotide in the RNA, calculated from base pairing probabilities.
+Input files: 1 - RNA secondary structure in either dot bracket notation (FASTA file) or CT (connectivity table) format; 2 - positional Shannon entropy for each nucleotide in the RNA, calculated from base pairing probabilities.
 
 RSCanner scans the secondary structure provided along with Shannon entropy values in sliding windows covering the entire RNA and calculates the base pair content (BPC) and median entropy values for each window. Then, it computes nucleotide positions with BPC values above a user-defined cutoff (default = 50th percentile) and Shannon entropy values below a user-defined cutoff (default = 50th percentile). These positions are termed structure counts. RSCanner then outputs the frequency distribution of structure counts across the RNA as both heatmap and histogram plots.  
 
@@ -20,29 +20,29 @@ For usage information and detailed input/output information, run the following i
  
  # Terminal output
  
-To run the script, do
+ To run the script, do
 
-    Rscript RSCanner_CT_shannon.R <input_structure.ct>  <shannon.txt>
+     Rscript RSCanner_CT_shannon.R <input_structure.ct>  <shannon.txt>
 
-Input:
-    input_structure.ct        - CT format file; six columns after one header line
-    shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header 
+ Input:
+     input_structure.ct        - CT format file; six columns after one header line
+     shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header 
 
-Output:
-    bpcplot.tiff                             - output BPC line plot figure
-    smoothed_Shannonplot.tiff                - output smoothed SE line plot figure
-    structure_counts_histogram.tiff          - output histogram figure
-    structure_counts_heatmap.tiff            - output final line plot/heatmap figure
+ Output:
+     bpcplot.tiff                             - output BPC line plot figure
+     smoothed_Shannonplot.tiff                - output smoothed SE line plot figure
+     structure_counts_histogram.tiff          - output histogram figure
+     structure_counts_heatmap.tiff            - output final line plot/heatmap figure
 
-    bpc_data.csv                             - output tab delimited file, col1=index, col2=nucleotide number, col3=BPC
-    smoothed_Shannon_data.csv                - output tab delimited file, col1=index, col2=nucleotide number, col3=smoothed Shannon Entropy
-    structure_counts.csv                     - output tab delimited file, col1=index, col2=structure counts, col3=BPC, col4=smoothed Shannon Entropy
-    ordered_structure_table.csv              - output tab delimited file, col1=index, col2=bin number, col3=% structure content, col4=bin start (nt), col5=bin end (nt)
+     bpc_data.csv                             - output tab delimited file, col1=index, col2=nucleotide number, col3=BPC
+     smoothed_Shannon_data.csv                - output tab delimited file, col1=index, col2=nucleotide number, col3=smoothed Shannon Entropy
+     structure_counts.csv                     - output tab delimited file, col1=index, col2=structure counts, col3=BPC, col4=smoothed Shannon Entropy
+     ordered_structure_table.csv              - output tab delimited file, col1=index, col2=bin number, col3=% structure content, col4=bin start (nt), col5=bin end (nt)
 
 ```
 
 ## Usage: RSCanner_dotbracket_shannon.R
-To be used when the secondary structure input is in the dot bracket format (FASTA file).
+To be used when the secondary structure input is in dot bracket format (FASTA file).
 For usage information and detailed input/output information, run the following in your terminal:
 
 ```
