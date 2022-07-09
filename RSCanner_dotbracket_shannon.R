@@ -20,7 +20,7 @@ if (length(args)<1){
   quit()
 }
 
-#Load the required packages
+# Load the required packages
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
@@ -52,7 +52,7 @@ BPC_cutoff <- as.double(readLines("stdin", 1))
 
 ## Step 2: Sliding window calculations
 
-#Base pair content (BPC) calculation with customized sliding window size
+# Base pair content (BPC) calculation with customized sliding window size
 dotbracket_vector_bin <- numeric(length(dotbracket_vector))
 for (i in 1:length(dotbracket_vector)) {
   if (dotbracket_vector[i] == ".") {
@@ -91,7 +91,7 @@ for (p in 1:length(dotbracket_vector)) {
 }
 oneminus_dotperc <- 1 - dotperc
 
-#Shannon entropy (SE) smoothing with customized sliding window size
+# Shannon entropy (SE) smoothing with customized sliding window size
 if ((window_size_shan %% 2) == 0) {
   gapnum_shan <- window_size_shan/2 + 1
 } else {
@@ -119,7 +119,7 @@ for (o in 1:length(shannon)) {
 
 ## Step 3: Filtering
 
-#Calculate proportion of regions that have BPC above the threshold and smoothed SE below the threshold ("structure counts")
+# Filter nucleotides that have BPC above the threshold and smoothed SE below the threshold ("structure counts")
 a <- which(oneminus_dotperc > quantile(oneminus_dotperc, probs=c(BPC_cutoff),name=FALSE)) #indices of the bpcs that are above cutoff
 b <- which(med_shan < quantile(med_shan, probs=c(SE_cutoff),name=FALSE)) #indices of shannons that are below cutoff
 abinter <- intersect(a,b) #intersection of the two vectors
@@ -128,7 +128,7 @@ passing_nucs <- as.data.frame(cbind(`Nucleotide` = abinter,
                                     `Base Pair Content` = oneminus_dotperc[abinter], 
                                     `Shannon` = med_shan[abinter]))
 
-#Save csv of nucleotides that pass both thresholds
+# Save csv of nucleotides that pass both thresholds
 write.csv(passing_nucs, "structure_counts.csv")
 
 #USER: input the x-axis bounds (nt) for visualization
@@ -144,7 +144,7 @@ if (x_upper_bound > length(shannon)) {
 } else {x_upper_bound <- x_upper_bound}
 pdf(NULL)
 
-#Plot BPC along the full length of the RNA
+# Plot BPC along the full length of the RNA
 bpcplotdata <- as.data.frame(cbind(seq(1, length(oneminus_dotperc)), oneminus_dotperc)) %>% rename("Nucleotide Position" = V1) %>% 
   rename("Base Pair Content" = oneminus_dotperc)
 ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content`)) + theme_classic() + 
@@ -154,7 +154,7 @@ ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content
   theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 pdf(NULL)
 
-#Save BPC data as a csv
+# Save BPC data as a csv
 write.csv(bpcplotdata, "bpc_data.csv")
 
 cat("\n Input image save settings: \n\n")
@@ -170,10 +170,10 @@ dpiinput <- as.integer(readLines("stdin", 1))
 
 cat("\n Computation complete... saving base-pair content image. \n\n")
 
-#Save BPC lineplot
+# Save BPC lineplot
 ggsave("bpcplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
 
-#Plot smoothed SE along the full length of the RNA
+# Plot smoothed SE along the full length of the RNA
 shanplotdata <- as.data.frame(cbind(seq(1, length(med_shan)), med_shan)) %>% rename("Nucleotide Position" = V1) %>% 
   rename("Smoothed Median Shannon Entropy" = med_shan)
 ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median Shannon Entropy`)) + theme_classic() +
@@ -182,12 +182,12 @@ ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median 
   scale_x_continuous(limits = c(x_low_bound, x_upper_bound))+
   theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 
-#Save smoothed SE data as a csv
+# Save smoothed SE data as a csv
 write.csv(shanplotdata, "smoothed_Shannon_data.csv")
 
 cat("\n Computation complete... saving shannon image. \n\n")
 
-#Save smoothed SE lineplot
+# Save smoothed SE lineplot
 ggsave("smoothed_Shannonplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
 
 ## Step 4: Binning and Visualization
@@ -235,13 +235,13 @@ ordered_results_table <- arrange(unordered_results_table, desc(structure_counts)
   rename("% Structure Content" = structure_counts) %>% rename("Bin Start (nt)" = finalwind_init) %>% 
   rename("Bin End (nt)" = finalwind_fin)
 
-#Save the ordered table to a csv
+# Save the ordered table to a csv
 write.csv(ordered_results_table, "ordered_structure_table.csv")
 
-#Plot the percentage of structure content in non-overlapping bins along the RNA and overlay with a heatmap
+# Plot the percentage of structure content in non-overlapping bins along the RNA and overlay with a heatmap
 half_finalwind <- finalwind/2
 
-#Color ramp creation
+# Color ramp creation
 colorramp <-  colorRampPalette(colors=c("#FFFF00", "#FF0000"))(finalwind+1)
 inds_colors <- numeric(length(finalwind_inds_real))
 for (i in 1:length(structure_counts)) {
@@ -252,7 +252,7 @@ dat <- data.frame(pos = finalwind_inds_real, vals = structure_counts, cols = ind
 starty <- finalwind_inds_real - half_finalwind
 endy <- finalwind_inds_real + half_finalwind
 endy[length(endy)] <- length(shannon)
-#Highlight region data
+# Highlight region data
 rects <- data.frame(start=starty, end=endy, group=seq_along(starty))
 
 rects_lowwy <- which(rects$start == floor(x_low_bound/finalwind)*100)
@@ -267,13 +267,13 @@ new_rects <- rects %>% slice(rects_lowwy:rects_uppy)
 
 new_dat <- dat %>% slice(rects_lowwy:rects_uppy)
 
-#Min and max x and y values
+# Min and max x and y values
 ymin <- min(dat$vals)
 ymax <- max(dat$vals)
 xmin <- new_rects$start[1]
 xmax <- new_rects$end[length(new_rects$end)]
 
-#Generate line plot with heatmap overlay
+# Generate line plot with heatmap overlay
 heatmap <- ggplot(data=new_dat, aes(pos, vals)) +
   theme_classic() +
   geom_rect(data=new_rects, inherit.aes=FALSE, aes(xmin=starty[rects_lowwy:rects_uppy], xmax=endy[rects_lowwy:rects_uppy], ymin=ymin,
@@ -286,14 +286,14 @@ heatmap <- ggplot(data=new_dat, aes(pos, vals)) +
 
 cat("\n Computation complete... saving heatmap image. \n\n")
 
-#Save line plot/heatmap
+# Save line plot/heatmap
 ggsave("structure_counts_heatmap.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
 
-#Plot histogram of structure counts along the RNA
+# Plot histogram of structure counts along the RNA
 bar <- ggplot(data=(new_dat %>% rename(`Structure Counts` = vals) %>% rename(`Nucleotide` = pos)), aes(x=`Nucleotide`, y=`Structure Counts`)) +
   geom_bar(stat="identity",  fill="grey", colour="black", width=100)+
   theme_classic()+
   theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 
-#Save histogram
+# Save histogram
 ggsave("structure_counts_histogram.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
