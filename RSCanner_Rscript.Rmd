@@ -203,14 +203,6 @@ write.csv(passing_nucs, "structure_counts.csv")
 length(abinter)/length(med_shan)
 ```
 
-# Plot histogram of structure counts along the RNA
-```{r}
-ggplot(data=(new_dat %>% rename(`Structure Counts` = vals) %>% rename(`Nucleotide` = pos)), aes(x=`Nucleotide`, y=`Structure Counts`)) +
-  geom_bar(stat="identity",  fill="grey", colour="black", width=100)+
-  theme_classic()+
-  theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
-```
-
 ## Step 4: Binning and Visualization
 # Note to user: The bin size here is hard-coded to 100 nt. If you want to adjust this parameter, we recommend using the included R scripts.
 ```{r}
@@ -322,4 +314,12 @@ height <- 3
 dpi <- 300
 ##
 ggsave(filename, device=device, path=path, width=width, height=height, dpi=dpi)
+```
+
+# Plot histogram of structure counts along the RNA
+```{r}
+ggplot(data=(new_dat %>% rename(`Structure Counts` = vals) %>% rename(`Nucleotide` = pos)), aes(x=`Nucleotide`, y=`Structure Counts`)) +
+  geom_bar(stat="identity",  fill="grey", colour="black", width=100)+
+  theme_classic()+
+  theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 ```
