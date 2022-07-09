@@ -5,24 +5,27 @@ if (length(args)<1){
   cat("\n")
   cat("    Rscript RSCanner_CT_shannon.R <input_structure.ct>  <shannon.txt>\n")
   cat("\nInput:\n")
-  cat("    input_structure.ct          - CT format file; six columns after one header line\n")
+  cat("    input_structure.ct        - CT format file; six columns after one header line\n")
   cat("    shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header \n")  
   cat("\nOutput:\n")
-  cat("    bpcplot.tiff                             - output line plot figure\n")
-  cat("    smoothed_Shannonplot.tiff                - output line plot figure\n")
+  cat("    bpcplot.tiff                             - output BPC line plot figure\n")
+  cat("    smoothed_Shannonplot.tiff                - output smoothed SE line plot figure\n")
   cat("    structure_counts_histogram.tiff          - output histogram figure\n")
-  cat("    structure_counts_heatmap.tiff            - output heatmap figure\n")
+  cat("    structure_counts_heatmap.tiff            - output final line plot/heatmap figure\n")
   cat("\n")
   cat("    bpc_data.csv                             - output tab delimited file, col1=index, col2=nucleotide number, col3=BPC\n")
   cat("    smoothed_Shannon_data.csv                - output tab delimited file, col1=index, col2=nucleotide number, col3=smoothed Shannon Entropy\n")
   cat("    structure_counts.csv                     - output tab delimited file, col1=index, col2=structure counts, col3=BPC, col4=smoothed Shannon Entropy\n")
-  cat("    ordered_structure_table.csv              - output tab delimited file, col1=index, col2=Bin Number, col3=%structure counts, col4=Bin start(nt), col5=Bin end(nt)\n")
+  cat("    ordered_structure_table.csv              - output tab delimited file, col1=index, col2=bin number, col3=% structure content, col4=bin start (nt), col5=bin end (nt)\n")
   quit()
 }
 
+#Load the required packages
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
+
+## Step 1: Inputs
 
 #USER: Input ct file
 ctfileinput <- read.table(args[1], skip = 1)$V5
@@ -44,7 +47,7 @@ SE_cutoff <- as.double(readLines("stdin", 1))
 cat("Input BPC percentile cutoff, decimal between 0 and 1 (use 0.5 as default): ")
 BPC_cutoff <- as.double(readLines("stdin", 1))
 
-#convert ct file to dot bracket vector, Run those lines if input structure file is a ct file, NOT a dotbracket file
+#Convert input ct file to dotbracket vector format
 dotbracket_nums <- ctfileinput
 indexnotzero <- which(dotbracket_nums != 0)
 for (i in 2:length(indexnotzero)) {
@@ -75,6 +78,9 @@ dotbracket_real[which(dotbracket_real == "0")] <- "."
 
 dotbracket_vector <- dotbracket_real
 
+## Step 2: Sliding window calculations
+
+#Base pair content (BPC) calculation with customized sliding window size
 dotbracket_vector_bin <- numeric(length(dotbracket_vector))
 for (i in 1:length(dotbracket_vector)) {
   if (dotbracket_vector[i] == ".") {
@@ -113,8 +119,7 @@ for (p in 1:length(dotbracket_vector)) {
 }
 oneminus_dotperc <- 1 - dotperc
 
-#Shannon smoothing with customized size sliding window
-#movmedian calculation
+#Shannon entropy (SE) smoothing with customized sliding window size
 if ((window_size_shan %% 2) == 0) {
   gapnum_shan <- window_size_shan/2 + 1
 } else {
@@ -140,6 +145,9 @@ for (o in 1:length(shannon)) {
   med_shan[o] <- median(shannon[window_initvec_shan[o]:window_termvec_shan[o]])
 }
 
+## Step 3: Filtering
+
+#Calculate proportion of regions that have BPC above the threshold and smoothed SE below the threshold ("structure counts")
 a <- which(oneminus_dotperc > quantile(oneminus_dotperc, probs=c(BPC_cutoff),name=FALSE)) #indices of the bpcs that are above cutoff
 b <- which(med_shan < quantile(med_shan, probs=c(SE_cutoff),name=FALSE)) #indices of shannons that are below cutoff
 abinter <- intersect(a,b) #intersection of the two vectors
@@ -148,12 +156,12 @@ passing_nucs <- as.data.frame(cbind(`Nucleotide` = abinter,
                                     `Base Pair Content` = oneminus_dotperc[abinter], 
                                     `Shannon` = med_shan[abinter]))
 
-#csv saved of nucleotides that pass both thresholds
+#Save csv of nucleotides that pass both thresholds
 write.csv(passing_nucs, "structure_counts.csv")
 
-#USER: input the xbounds that you want to filter domain on
+#USER: input the x-axis bounds (nt) for visualization
 cat("The transcript inputted is of length", length(shannon), "\n\n")
-cat("Please input desired bounds for analysis, between 1 and", length(shannon), "\n\n")
+cat("Please input desired bounds for visualization, between 1 and", length(shannon), "\n\n")
 cat("Input integer lower bound (default value of 1): ")
 x_low_bound <- as.integer(readLines("stdin", 1))
 cat("Input integer upper bound (default value of", length(shannon), "): ")
@@ -163,7 +171,8 @@ if (x_upper_bound > length(shannon)) {
   x_upper_bound <- length(shannon)
 } else {x_upper_bound <- x_upper_bound}
 pdf(NULL)
-#plot BPC along the full length RNA 
+
+#Plot BPC along the full length of the RNA 
 bpcplotdata <- as.data.frame(cbind(seq(1, length(oneminus_dotperc)), oneminus_dotperc)) %>% rename("Nucleotide Position" = V1) %>% 
   rename("Base Pair Content" = oneminus_dotperc)
 ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content`)) + theme_classic() + 
@@ -172,7 +181,8 @@ ggplot(data = bpcplotdata, aes(x = `Nucleotide Position`, y = `Base Pair Content
   scale_x_continuous(limits = c(x_low_bound, x_upper_bound))+
   theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 pdf(NULL)
-#save bpc data as a csv
+
+#Save BPC data as a csv
 write.csv(bpcplotdata, "bpc_data.csv")
 
 cat("\n Input image save settings: \n\n")
@@ -188,9 +198,10 @@ dpiinput <- as.integer(readLines("stdin", 1))
 
 cat("\n Computation complete... saving base-pair content image. \n\n")
 
+#Save BPC lineplot
 ggsave("bpcplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
 
-#plot the smoothed Shannon entropy
+#Plot smoothed SE along the full length of the RNA
 shanplotdata <- as.data.frame(cbind(seq(1, length(med_shan)), med_shan)) %>% rename("Nucleotide Position" = V1) %>% 
   rename("Smoothed Median Shannon Entropy" = med_shan)
 ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median Shannon Entropy`)) + theme_classic() +
@@ -199,12 +210,15 @@ ggplot(data = shanplotdata, aes(x = `Nucleotide Position`, y = `Smoothed Median 
   scale_x_continuous(limits = c(x_low_bound, x_upper_bound))+
   theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 
-#save shannon data as a csv
+#Save shannon data as a csv
 write.csv(shanplotdata, "smoothed_Shannon_data.csv")
 
 cat("\n Computation complete... saving shannon image. \n\n")
 
+#Save smoothed SE lineplot
 ggsave("smoothed_Shannonplot.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
+
+## Step 4: Binning and Visualization
 
 #USER: Input window size for final computation
 cat("Input integer window length for histogram and heatmap (use 100 as default): ")
@@ -249,14 +263,14 @@ ordered_results_table <- arrange(unordered_results_table, desc(structure_counts)
   rename("% Structure Content" = structure_counts) %>% rename("Bin Start (nt)" = finalwind_init) %>% 
   rename("Bin End (nt)" = finalwind_fin)
 
-#this writes the ordered table to csv!
+#Save the ordered table to a csv
 write.csv(ordered_results_table, "ordered_structure_table.csv")
 
-#plot the percentage of well-defined structures in non-overlaping bins along the RNA
+#Plot the percentage of structure content in non-overlapping bins along the RNA and overlay with a heatmap
 
 half_finalwind <- finalwind/2
 
-#color ramp creation
+#Color ramp creation
 colorramp <-  colorRampPalette(colors=c("#FFFF00", "#FF0000"))(finalwind+1)
 inds_colors <- numeric(length(finalwind_inds_real))
 for (i in 1:length(structure_counts)) {
@@ -267,7 +281,7 @@ dat <- data.frame(pos = finalwind_inds_real, vals = structure_counts, cols = ind
 starty <- finalwind_inds_real - half_finalwind
 endy <- finalwind_inds_real + half_finalwind
 endy[length(endy)] <- length(shannon)
-## highlight region data
+#Highlight region data
 rects <- data.frame(start=starty, end=endy, group=seq_along(starty))
 
 rects_lowwy <- which(rects$start == floor(x_low_bound/finalwind)*100)
@@ -282,12 +296,13 @@ new_rects <- rects %>% slice(rects_lowwy:rects_uppy)
 
 new_dat <- dat %>% slice(rects_lowwy:rects_uppy)
 
-# min and max x and y values
+#Min and max x and y values
 ymin <- min(dat$vals)
 ymax <- max(dat$vals)
 xmin <- new_rects$start[1]
 xmax <- new_rects$end[length(new_rects$end)]
 
+#Generate line plot with heatmap
 heatmap <- ggplot(data=new_dat, aes(pos, vals)) +
   theme_classic() +
   geom_rect(data=new_rects, inherit.aes=FALSE, aes(xmin=starty[rects_lowwy:rects_uppy], xmax=endy[rects_lowwy:rects_uppy], ymin=ymin,
@@ -299,11 +314,14 @@ heatmap <- ggplot(data=new_dat, aes(pos, vals)) +
 
 cat("\n Computation complete... saving heatmap image. \n\n")
 
+#Save line plot/heatmap
 ggsave("structure_counts_heatmap.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
 
+#Plot histogram of structure counts along the RNA
 bar <- ggplot(data=(new_dat %>% rename(`Structure Counts` = vals) %>% rename(`Nucleotide` = pos)), aes(x=`Nucleotide`, y=`Structure Counts`)) +
   geom_bar(stat="identity",  fill="grey", colour="black", width=100)+
   theme_classic()+
   theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 
+#Save histogram
 ggsave("structure_counts_histogram.tiff", device="tiff", width=widthinput, height=heightinput, dpi=dpiinput)
