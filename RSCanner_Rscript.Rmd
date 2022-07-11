@@ -204,7 +204,6 @@ length(abinter)/length(med_shan)
 ```
 
 ## Step 4: Binning and Visualization
-# Note to user: The bin size here is hard-coded to 100 nt. If you want to adjust this parameter, we recommend using the included R scripts.
 ```{r}
 if ((finalwind %% 2) == 1) {
   finalwind <- finalwind + 1
