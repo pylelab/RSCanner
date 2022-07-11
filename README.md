@@ -10,6 +10,14 @@ RSCanner scans the secondary structure provided along with Shannon entropy value
 
 RSCanner uses a centered sliding window (default=51nt, 25nt flanks to each side of the center nucleotide, moved in steps of 1 nt across the RNA) to calculate BPC and median Shannon Entropy. If an even number window size is inputted, RSCanner will use the next odd number as the window size (i.e., if input=50, the actual window size=51). In this way, a centered sliding window is always used in all calculations. When dealing with the ends, RSCanner will gradually truncate the window size (i.e., for 5' end windows - window #26=[1nt,51nt], window#25=[1nt,50nt], window#24 =[1nt,49nt], etc; 3’ end windows are computed analogously).
 
+## Installation
+RSCanner require pre-installation of several R packages. To install them, open R and enter:
+
+```
+install.packages("tidyverse")
+install.packages("dplyr")
+install.packages("ggplot2")
+```
 
 ## Usage: RSCanner_CT_shannon.R
 To be used when the secondary structure input is a CT file.
