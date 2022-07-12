@@ -28,7 +28,7 @@ dotbracket_vector <- strsplit(dotbracketinput, split = NULL)[[1]]
 #USER: Input ct file. Uncomment this to load in the ct file example instead.
 #ctfileinput <- read.table("sample_test_files/HCV_Jc1.ct", skip = 1)$V5
 
-#USER (OPTIONAL): Input list of Shannon values
+#USER: Input list of Shannon values
 shannoninput <- read.table("sample_test_files/lncRNA-GRS1_shannon.txt", header = FALSE)
 shannon <- shannoninput$V2
 #USER: Input window size for BPC calculation
@@ -258,7 +258,7 @@ write.csv(ordered_results_table, "ordered_structure_table.csv")
 half_finalwind <- finalwind/2
 
 #color ramp creation
-colorramp <-  colorRampPalette(colors=c("#FFFF00", "#FF0000"))(finalwind+1)
+colorramp <-  colorRampPalette(colors=c("#FFFF00", "#FF0000"))(100+1)
 inds_colors <- numeric(length(finalwind_inds_real))
 for (i in 1:length(structure_counts)) {
   inds_colors[i] <- colorramp[structure_counts[i]+1]
@@ -271,12 +271,12 @@ endy[length(endy)] <- length(shannon)
 ## highlight region data
 rects <- data.frame(start=starty, end=endy, group=seq_along(starty))
 
-rects_lowwy <- which(rects$start == floor(x_low_bound/finalwind)*100)
+rects_lowwy <- which(rects$start == floor(x_low_bound/finalwind)*finalwind)
 
 if ((ceiling(x_upper_bound/finalwind)*100) > rects[nrow(rects),]$end) {
   rects_uppy <- which(rects$end == rects[nrow(rects),]$end)
 } else {
-  rects_uppy <- which(rects$end == ceiling(x_upper_bound/finalwind)*100)
+  rects_uppy <- which(rects$end == ceiling(x_upper_bound/finalwind)*finalwind)
 }
 
 new_rects <- rects %>% slice(rects_lowwy:rects_uppy)
@@ -318,7 +318,7 @@ ggsave(filename, device=device, path=path, width=width, height=height, dpi=dpi)
 # Plot histogram of structure counts along the RNA
 ```{r}
 ggplot(data=(new_dat %>% rename(`Structure Counts` = vals) %>% rename(`Nucleotide` = pos)), aes(x=`Nucleotide`, y=`Structure Counts`)) +
-  geom_bar(stat="identity",  fill="grey", colour="black", width=100)+
+  geom_bar(stat="identity",  fill="grey", colour="black", width=finalwind)+
   theme_classic()+
   theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 ```
