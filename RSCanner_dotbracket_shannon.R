@@ -242,7 +242,7 @@ write.csv(ordered_results_table, "ordered_structure_table.csv")
 half_finalwind <- finalwind/2
 
 # Color ramp creation
-colorramp <-  colorRampPalette(colors=c("#FFFF00", "#FF0000"))(finalwind+1)
+colorramp <-  colorRampPalette(colors=c("#FFFF00", "#FF0000"))(100+1)
 inds_colors <- numeric(length(finalwind_inds_real))
 for (i in 1:length(structure_counts)) {
   inds_colors[i] <- colorramp[structure_counts[i]+1]
@@ -255,12 +255,12 @@ endy[length(endy)] <- length(shannon)
 # Highlight region data
 rects <- data.frame(start=starty, end=endy, group=seq_along(starty))
 
-rects_lowwy <- which(rects$start == floor(x_low_bound/finalwind)*100)
+rects_lowwy <- which(rects$start == floor(x_low_bound/finalwind)*finalwind)
 
-if ((ceiling(x_upper_bound/finalwind)*100) > rects[nrow(rects),]$end) {
+if ((ceiling(x_upper_bound/finalwind)*finalwind) > rects[nrow(rects),]$end) {
   rects_uppy <- which(rects$end == rects[nrow(rects),]$end)
 } else {
-  rects_uppy <- which(rects$end == ceiling(x_upper_bound/finalwind)*100)
+  rects_uppy <- which(rects$end == ceiling(x_upper_bound/finalwind)*finalwind)
 }
 
 new_rects <- rects %>% slice(rects_lowwy:rects_uppy)
@@ -291,7 +291,7 @@ ggsave("structure_counts_heatmap.tiff", device="tiff", width=widthinput, height=
 
 # Plot histogram of structure counts along the RNA
 bar <- ggplot(data=(new_dat %>% rename(`Structure Counts` = vals) %>% rename(`Nucleotide` = pos)), aes(x=`Nucleotide`, y=`Structure Counts`)) +
-  geom_bar(stat="identity",  fill="grey", colour="black", width=100)+
+  geom_bar(stat="identity",  fill="grey", colour="black", width=finalwind)+
   theme_classic()+
   theme(axis.text = element_text(size = 10, color="black"), axis.title = element_text(size = 12), panel.border = element_rect(color="black", fill=NA, size = 1))
 
