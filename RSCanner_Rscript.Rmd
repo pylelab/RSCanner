@@ -273,7 +273,7 @@ rects <- data.frame(start=starty, end=endy, group=seq_along(starty))
 
 rects_lowwy <- which(rects$start == floor(x_low_bound/finalwind)*finalwind)
 
-if ((ceiling(x_upper_bound/finalwind)*100) > rects[nrow(rects),]$end) {
+if ((ceiling(x_upper_bound/finalwind)*finalwind) > rects[nrow(rects),]$end) {
   rects_uppy <- which(rects$end == rects[nrow(rects),]$end)
 } else {
   rects_uppy <- which(rects$end == ceiling(x_upper_bound/finalwind)*finalwind)
