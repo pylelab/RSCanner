@@ -21,9 +21,9 @@ if (length(args)<1){
 }
 
 # Install the required packages
-install.packages("tidyverse")
-install.packages("dplyr")
-install.packages("ggplot2")
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+install.packages("dplyr", repos = "http://cran.us.r-project.org")
+install.packages("ggplot2", repos = "http://cran.us.r-project.org")
 
 # Load the required packages
 library(tidyverse)
