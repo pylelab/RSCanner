@@ -1,6 +1,6 @@
 # RSCanner
 
-RSCanner is an R package for rapid assessment and visualization of RNA structural content that is particularly useful for long RNAs. The script has been written as an Rmd file, and command line functionality has been provided via two separate R scripts, to be used depending on the type of input given.
+RSCanner is an R package for rapid assessment and visualization of RNA structural content that is particularly useful for long RNAs. The script has been written as an Rmd file, and command line functionality has been provided via two separate R scripts, to be used depending on the type of input given. You can access fully functional RSCanner using either 1) the R scripts via command line or 2) the Rmd notebook via RStudio (a popular R IDE). For general use, we recommend using the R scripts. See usage instructions below.
 
 ## Inputs and algorithm description
 
@@ -11,7 +11,15 @@ RSCanner scans the secondary structure provided along with Shannon entropy value
 RSCanner uses a centered sliding window (default=51nt, 25nt flanks to each side of the center nucleotide, moved in steps of 1 nt across the RNA) to calculate BPC and median Shannon Entropy. If an even number window size is inputted, RSCanner will use the next odd number as the window size (i.e., if input=50, the actual window size=51). In this way, a centered sliding window is always used in all calculations. When dealing with the ends, RSCanner will gradually truncate the window size (i.e., for 5' end windows - window #26=[1nt,51nt], window#25=[1nt,50nt], window#24 =[1nt,49nt], etc; 3’ end windows are computed analogously).
 
 ## Installation
-RSCanner requires pre-installation of several R packages. To install them, open R and enter:
+RSCanner requires pre-installation of the R computing language and three R packages.
+
+### Install R computing language
+From the R Project documentation, "R is a free software environment for statistical computing and graphics. It compiles and runs on a wide variety of UNIX platforms, Windows and MacOS." 
+
+To use our RSCanner tool, download R from https://www.r-project.org/ by choosing a CRAN mirror. For example, you can use the CRAN mirror hosted by the National Institute for Computational Sciences at https://mirrors.nics.utk.edu/cran/. Choose your machine and operating system, and download R following the directions on the documentation.
+
+### Install R packages
+The installation instructions for the R packages differ depending on whether you are using the R scripts or the R
 
 ```
 install.packages("tidyverse")
