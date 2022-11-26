@@ -13,12 +13,15 @@ RSCanner uses a centered sliding window (default=51nt, 25nt flanks to each side 
 ## Installation
 RSCanner requires pre-installation of the R computing language and three R packages.
 
-### Install R computing language
+### Step 1: Install R computing language
 From the R Project documentation, "R is a free software environment for statistical computing and graphics. It compiles and runs on a wide variety of UNIX platforms, Windows and MacOS." 
 
 To use our RSCanner tool, download R from https://www.r-project.org/ by choosing a CRAN mirror. For example, you can use the CRAN mirror hosted by the National Institute for Computational Sciences at https://mirrors.nics.utk.edu/cran/. Choose your machine and operating system, and download R following the directions on the documentation.
 
-### Install R packages
+### Step 2: Clone the RSCanner Github repository by the Pyle Lab at Yale University
+Clone this entire Github repository to your local machine. The repository will download as a zip file called 'RSCanner-main.zip' by default. Unzip the file. We will proceed with usage instructions assuming the user is in 'RSCanner-main' directory on their terminal.
+
+### Step 3: Install R packages
 The installation instructions for the R packages differ depending on whether you are using the R scripts or the R
 
 ```
