@@ -20,6 +20,11 @@ if (length(args)<1){
   quit()
 }
 
+# Install the required packages
+install.packages("tidyverse")
+install.packages("dplyr")
+install.packages("ggplot2")
+
 # Load the required packages
 library(tidyverse)
 library(dplyr)
