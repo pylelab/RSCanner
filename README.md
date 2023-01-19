@@ -16,7 +16,7 @@ RSCanner requires pre-installation of the R computing language and three R packa
 ### Step 1: Install R computing language
 From the R Project documentation, "R is a free software environment for statistical computing and graphics. It compiles and runs on a wide variety of UNIX platforms, Windows and MacOS." 
 
-To use our RSCanner tool, download R from https://www.r-project.org/ by choosing a CRAN mirror. For example, you can use the CRAN mirror hosted by the National Institute for Computational Sciences at https://mirrors.nics.utk.edu/cran/. Choose your machine and operating system, and download R following the directions on the documentation.
+To use our RSCanner tool, download R from http://lib.stat.cmu.edu/R/CRAN/ by choosing a CRAN mirror. For example, you can use the CRAN mirror hosted by the National Institute for Computational Sciences at https://mirrors.nics.utk.edu/cran/. Choose your machine and operating system, and download R following the directions on the documentation.
 
 ### Step 2: Clone the RSCanner Github repository by the Pyle Lab at Yale University
 Clone this entire Github repository to your local machine. The repository will download as a zip file called 'RSCanner-main.zip' by default. Unzip the file. We will proceed with usage instructions assuming the user is in 'RSCanner-main' directory on their machine.
@@ -42,7 +42,7 @@ The R Console will open a selection menu, from which the user must select a CRAN
 i.e. run
 ```
 > install.packages("dplyr")
-> install.packages("ggplot")
+> install.packages("ggplot2")
 ```
 and then select mirror.
 
