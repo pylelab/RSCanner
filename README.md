@@ -67,8 +67,8 @@ For usage information and detailed input/output information, run the following i
      shannon.txt               - two columns in a tab delimited file, col1 = index, col2 = shannon entropy values with no header 
 
  Output:
-     bpcplot.tiff                             - output BPC line plot figure
-     smoothed_Shannonplot.tiff                - output smoothed SE line plot figure
+     bpcplot.tiff                             - output BPC line plot figure, dashed line represents the global median
+     smoothed_Shannonplot.tiff                - output smoothed SE line plot figure, dashed line represents the global median
      structure_counts_histogram.tiff          - output histogram figure
      structure_counts_heatmap.tiff            - output final line plot/heatmap figure
 
