@@ -1,6 +1,6 @@
 # RSCanner
 
-RSCanner is an R package for rapid assessment and visualization of RNA structural content that is particularly useful for long RNAs. The script has been written as an Rmd file, and command line functionality has been provided via two separate R scripts, to be used depending on the type of input given. You can access fully functional RSCanner using either 1) the R scripts via command line or 2) the Rmd notebook via RStudio (a popular R IDE). For general use, we recommend using the R scripts. See usage instructions below.
+RSCanner is an R package for rapid assessment and visualization of RNA structural content that is particularly useful for long RNAs. The script has been written as an Rmd file, and command line functionality has been provided via two separate R scripts, to be used depending on the type of input given. You can access fully functional RSCanner using either 1) the R scripts via a Linux terminal (recommended for new R users) or 2) the Rmd notebook via RStudio (a popular R IDE). See usage instructions below. 
 
 ## Inputs and algorithm description
 
@@ -22,7 +22,7 @@ To use our RSCanner tool, download R from https://www.r-project.org/ by choosing
 Clone this entire Github repository to your local machine. The repository will download as a zip file called 'RSCanner-main.zip' by default. Unzip the file. We will proceed with usage instructions assuming the user is in 'RSCanner-main' directory on their machine.
 
 ### Step 3: Install R packages
-The installation instructions for the R packages differ depending on whether you are using the R scripts or the Rmd notebook in RStudio. The RSCanner script has three R package dependencies: 'tidyverse', 'dplyr', and 'ggplot'. The user can install these packages by opening the R console application that they installed in Step 1 above, and running the following lines on the R console command line that opens.
+The installation instructions for the R packages differ depending on whether you are using the R scripts or the Rmd notebook in RStudio. The RSCanner script has three R package dependencies: 'tidyverse', 'dplyr', and 'ggplot'. The user can install these packages by opening the R Console application that they installed in Step 1 above, and running the following lines on the R console command line that opens.
 
 #### Step 3.1: Open R
 After clicking the R application that you installed in Step 1 above, you will see an *R Console* as follows:
@@ -38,7 +38,7 @@ For example, run:
 #### Step 3.3: Select CRAN Mirror
 The R Console will open a selection menu, from which the user must select a CRAN mirror (any will do, the most convenient is to select the CRAN mirror corresponding to your geographical area, e.g. USA)
 
-#### Step 3.4: Repeat steps 3.1-3.3 for packages 'dplyr' and 'ggplot' as well.
+#### Step 3.4: Repeat steps 3.1-3.3 for packages 'dplyr' and 'ggplot2' as well.
 i.e. run
 ```
 > install.packages("dplyr")
