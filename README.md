@@ -21,8 +21,11 @@ To use our RSCanner tool, download R from https://www.r-project.org/ by choosing
 ### Step 2: Clone the RSCanner Github repository by the Pyle Lab at Yale University
 Clone this entire Github repository to your local machine. The repository will download as a zip file called 'RSCanner-main.zip' by default. Unzip the file. We will proceed with usage instructions assuming the user is in 'RSCanner-main' directory on their machine.
 
-### Step 3: Install R packages
-The installation instructions for the R packages differ depending on whether you are using the R scripts or the Rmd notebook in RStudio. The RSCanner script has three R package dependencies: 'tidyverse', 'dplyr', and 'ggplot'. The user can install these packages by opening the R Console application that they installed in Step 1 above, and running the following lines on the R console command line that opens.
+### (Optional) Step 3: Install R packages
+
+#### The Rscripts automatically check for the required packages and install them if needed. However, we included instructions below for manual installation.
+
+The installation instructions for the R packages differ depending on whether you are using the R scripts or the Rmd notebook in RStudio. The RSCanner script has three R package dependencies: 'tidyverse', 'dplyr', and 'ggplot2'. The user can install these packages by opening the R Console application that they installed in Step 1 above, and running the following lines on the R console command line that opens.
 
 #### Step 3.1: Open R
 After clicking the R application that you installed in Step 1 above, you will see an *R Console* as follows:
