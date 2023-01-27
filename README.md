@@ -21,7 +21,7 @@ To use our RSCanner tool, download R from https://www.r-project.org/ by choosing
 ### Step 2: Clone the RSCanner Github repository by the Pyle Lab at Yale University
 Clone this entire Github repository to your local machine. The repository will download as a zip file called 'RSCanner-main.zip' by default. Unzip the file. We will proceed with usage instructions assuming the user is in 'RSCanner-main' directory on their machine.
 
-### (Optional) Step 3: Install R packages
+### (Not required) Step 3: Install R packages
 
 #### The Rscripts automatically check for the required packages and install them if needed. However, we included instructions below for manual installation.
 
